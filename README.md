@@ -1,6 +1,6 @@
 # Recruitment System
 
-A modern web application built with React and Vite for recruitment management system.
+Recruitment website for Thesis 2025 - 2026 made by Loc, Trang, Dung.
 
 ## Prerequisites
 
