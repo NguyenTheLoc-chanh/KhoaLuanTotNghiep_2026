@@ -1,0 +1,27 @@
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
+
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
+
+@Component
+public class EmployeeMapper {
+    private final ModelMapper modelMapper;
+
+    public EmployeeMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
+
+    public EmployeeDto toDto(Employee employee) {
+        EmployeeDto dto = modelMapper.map(employee, EmployeeDto.class);
+        if (employee.getUser() != null) {
+            dto.setUserId(employee.getUser().getUserId());
+        }
+        return dto;
+    }
+
+    public Employee toEntity(EmployeeDto dto) {
+        return modelMapper.map(dto, Employee.class);
+    }
+}
