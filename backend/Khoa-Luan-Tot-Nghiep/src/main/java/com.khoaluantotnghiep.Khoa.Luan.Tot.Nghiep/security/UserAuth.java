@@ -1,6 +1,8 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.UserRole;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -17,7 +20,14 @@ public class UserAuth implements UserDetails {
     private User user;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        if (user.getUserRoles() == null) {
+            return List.of();
+        }
+        return user.getUserRoles().stream()
+                .map(UserRole::getRole)
+                .map(Role::getRoleName)
+                .map(roleName -> new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -47,6 +57,6 @@ public class UserAuth implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getStatus() != null && user.getStatus().name().equals("ACTIVE");
     }
 }

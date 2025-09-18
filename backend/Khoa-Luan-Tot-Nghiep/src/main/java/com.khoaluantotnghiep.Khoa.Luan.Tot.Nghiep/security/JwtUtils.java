@@ -1,6 +1,8 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -11,10 +13,9 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,7 +34,13 @@ public class JwtUtils {
     }
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole().name()); // lưu quyền vào token
+        List<String> roles = Optional.ofNullable(user.getUserRoles())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(UserRole::getRole)
+                .map(Role::getRoleName)
+                .collect(Collectors.toList());
+        claims.put("roles", roles); // lưu quyền vào token
 
         return buildToken(claims, user.getEmail());
     }
@@ -51,6 +58,12 @@ public class JwtUtils {
 
     public String getUserNameFromToken(String token){
         return extractClaim(token, Claims::getSubject);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return (List<String>) claims.get("roles", List.class);
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -78,4 +91,8 @@ public class JwtUtils {
     private Date extractExpiration(String token){
         return extractClaim(token, Claims::getExpiration);
     }
+    public Date getExpirationFromToken(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
 }

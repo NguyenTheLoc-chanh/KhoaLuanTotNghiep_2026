@@ -1,0 +1,221 @@
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.LoginRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.RegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.RefreshToken;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.RefreshTokenRepository;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl.RefreshTokenServiceImpl;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@Tag(name = "Authentication", description = "API quản lý đăng ký, đăng nhập, logout và refresh token")
+public class AuthController {
+
+    private final UserService userService;
+    private final RefreshTokenRepository refreshTokenRepo;
+    private final RefreshTokenServiceImpl refreshTokenService;
+    private final JwtUtils jwtUtils;
+
+    // ===== REGISTER =====
+    @Operation(
+            summary = "Đăng ký người dùng mới",
+            requestBody = @RequestBody(
+                    description = "Thông tin user cần đăng ký",
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"email\": \"user@example.com\",\n" +
+                                            "  \"password\": \"12345678\",\n" +
+                                            "  \"confirmPassword\": \"12345678\",\n" +
+                                            "  \"role\": \"CANDIDATE\"\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Đăng ký thành công",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 201,\n" +
+                                                    "  \"message\": \"Đăng ký thành công\",\n" +
+                                                    "  \"userDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"email\": \"user@example.com\",\n" +
+                                                    "    \"role\": \"CANDIDATE\"\n" +
+                                                    "  }\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc mật khẩu không khớp"),
+                    @ApiResponse(responseCode = "409", description = "Email đã tồn tại")
+            }
+    )
+    @PostMapping("/register")
+    public ResponseEntity<Response> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        Response response = userService.registerUser(registerRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    // ===== LOGIN =====
+    @Operation(
+            summary = "Đăng nhập người dùng",
+            requestBody = @RequestBody(
+                    description = "Thông tin login",
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"email\": \"user@example.com\",\n" +
+                                            "  \"password\": \"12345678\"\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Đăng nhập thành công",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Đăng nhập thành công!\",\n" +
+                                                    "  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n" +
+                                                    "  \"refreshToken\": \"abc123-refresh-token\",\n" +
+                                                    "  \"roles\": [\"CANDIDATE\"],\n" +
+                                                    "  \"userDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"email\": \"user@example.com\",\n" +
+                                                    "    \"role\": \"CANDIDATE\"\n" +
+                                                    "  }\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "User không tồn tại hoặc mật khẩu sai")
+            }
+    )
+    @PostMapping("/login")
+    public ResponseEntity<Response> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+        Response response = userService.loginUser(loginRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    // ===== LOGOUT =====
+    @Operation(
+            summary = "Logout người dùng hiện tại",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Logout thành công",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Logout thành công!\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    @PostMapping("/logout")
+    public ResponseEntity<Response> logoutUser() {
+        Response response = userService.logoutUser();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    // ===== REFRESH TOKEN =====
+    @Operation(
+            summary = "Refresh access token sử dụng refresh token",
+            requestBody = @RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{ \"refreshToken\": \"abc123-refresh-token\" }"
+                            ),
+                            examples = @ExampleObject(
+                                    name = "RefreshTokenRequest",
+                                    value = "{ \"refreshToken\": \"abc123-refresh-token\" }"
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Token refreshed successfully",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Token refreshed successfully\",\n" +
+                                                    "  \"token\": \"new_access_token\",\n" +
+                                                    "  \"refreshToken\": \"new_refresh_token\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Refresh token không tồn tại hoặc hết hạn"
+                    )
+            }
+    )
+    @PostMapping("/refresh-token")
+    public ResponseEntity<Response> refreshToken(@RequestBody Map<String, String> request) {
+        String requestRefreshToken = request.get("refreshToken");
+
+        RefreshToken refreshToken = refreshTokenRepo.findByToken(requestRefreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token không tồn tại trong DB!"));
+
+        // Verify token còn hạn
+        refreshTokenService.verifyExpiration(refreshToken);
+
+        User user = refreshToken.getUser();
+
+        // Tạo access token mới
+        String newAccessToken = jwtUtils.generateToken(user);
+
+        // Tạo refresh token mới
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+        Response response = Response.builder()
+                .status(200)
+                .message("Token refreshed successfully")
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken.getToken())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+}

@@ -16,11 +16,13 @@ public class Response {
     private final LocalDateTime timestamp = LocalDateTime.now();
 
     private String token;
-    private String userRole;
+    private String refreshToken;
+    private List<String> roles;
     private String expirationTime;
 
-    private int totalPage;
-    private long totalElements;
+    private Integer currentPage;
+    private Long totalItems;
+    private Integer totalPages;
 
     private UserDto userDto;
     private List<UserDto> userDtoList;
