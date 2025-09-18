@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class Employee {
     private String companyName;
     private String companyLogo;
     private String website;
+    private String businessLicense;
 
     @OneToOne
     @JoinColumn(name = "userId", referencedColumnName = "userId")

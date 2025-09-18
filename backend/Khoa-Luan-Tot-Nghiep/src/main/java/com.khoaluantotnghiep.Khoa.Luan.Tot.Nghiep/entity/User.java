@@ -1,6 +1,5 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -36,10 +35,6 @@ public class User {
     @NotBlank(message = "Password is required")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
     @Enumerated(EnumType.STRING)   // lưu enum dưới dạng text ("ACTIVE", "LOCKED")
     @Column(nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
@@ -65,6 +60,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Employee employee;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserRole> userRoles;
 
     @PrePersist
     protected void onCreate() {
