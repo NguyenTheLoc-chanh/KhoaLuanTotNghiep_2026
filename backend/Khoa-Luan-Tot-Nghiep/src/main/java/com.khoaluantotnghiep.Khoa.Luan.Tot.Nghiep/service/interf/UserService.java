@@ -1,12 +1,13 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.LoginRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.RegisterRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.RoleUser;
 
 public interface UserService {
-    Response registerUser(RegisterRequest registrationRequest );
+    User saveUserWithRole(RegisterRequest request, RoleUser roleEnum);
+    Response registerCandidate(CandidateRegisterRequest registrationRequest );
+    Response registerEmployer(EmployerRegisterRequest registrationRequest );
     Response loginUser(LoginRequest loginRequest );
     Response getAllUsers(int page, int size);
     User getLoginUser();

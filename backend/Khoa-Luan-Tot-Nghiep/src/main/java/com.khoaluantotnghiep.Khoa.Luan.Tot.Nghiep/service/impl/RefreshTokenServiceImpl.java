@@ -7,6 +7,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.RefreshTokenSer
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
+    @Transactional
     public void revokeToken(User user) {
         refreshTokenRepo.deleteByUser(user);
     }

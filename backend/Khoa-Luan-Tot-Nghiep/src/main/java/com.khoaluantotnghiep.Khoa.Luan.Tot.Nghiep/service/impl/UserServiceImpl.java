@@ -1,11 +1,9 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.LoginRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.RegisterRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.UserDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.RoleUser;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ConflictException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.UserMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.*;
@@ -46,57 +44,66 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    @Transactional
-    public Response registerUser(RegisterRequest registrationRequest) {
-        if (userRepo.findByEmail(registrationRequest.getEmail()).isPresent()) {
-            return Response.builder()
-                    .status(409)
-                    .message("Email already registered")
-                    .build();
+    public User saveUserWithRole(RegisterRequest request, RoleUser roleEnum) {
+        if (userRepo.findByEmail(request.getEmail()).isPresent()) {
+            throw new ConflictException("Email already registered");
         }
-        // check confirmPassword
-        if (!registrationRequest.getPassword().equals(registrationRequest.getConfirmPassword())) {
-            return Response.builder()
-                    .status(400)
-                    .message("Mật khẩu và xác nhận mật khẩu không trùng khớp")
-                    .build();
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new ConflictException("Mật khẩu và xác nhận mật khẩu không trùng khớp");
         }
-        User user = userMapper.toEntity(registrationRequest);
-        user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepo.save(user);
-
-        // Nếu là nhà tuyển dụng thì set thêm businessLicense
-        if (RoleUser.EMPLOYER.name().equalsIgnoreCase(registrationRequest.getRole())) {
-            Employee employee = new Employee();
-            employee.setUser(savedUser);
-            if (registrationRequest.getBusinessLicense() != null && !registrationRequest.getBusinessLicense().isEmpty()) {
-                // Upload file PDF lên Cloudinary
-                String pdfUrl = cloudinaryService.uploadPdf(registrationRequest.getBusinessLicense());
-                employee.setBusinessLicense(pdfUrl);
-            }else {
-                employee.setBusinessLicense(null);
-            }
-            employeeRepo.save(employee);
-        }
-        // Nếu là ứng viên
-        if (RoleUser.CANDIDATE.name().equalsIgnoreCase(registrationRequest.getRole())) {
-            Candidate candidate = new Candidate();
-            candidate.setUser(savedUser);
-            candidateRepo.save(candidate);
-        }
-        // Gán Role
-        Role role = roleRepo.findByRoleName(registrationRequest.getRole())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role: " + registrationRequest.getRole()));
-
+        Role role = roleRepo.findByRoleName(roleEnum.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role: " + roleEnum.name()));
         UserRole userRole = new UserRole();
         userRole.setUser(savedUser);
         userRole.setRole(role);
         userRoleRepo.save(userRole);
 
+        return userRepo.findById(savedUser.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found after save"));
+    }
+
+    @Override
+    @Transactional
+    public Response registerCandidate(CandidateRegisterRequest registrationCandidateRequest) {
+        log.info("Registering candidate: {}", registrationCandidateRequest);
+        User savedUser = saveUserWithRole(registrationCandidateRequest, RoleUser.CANDIDATE);
+        // Nếu là ứng viên
+        if (RoleUser.CANDIDATE.name().equalsIgnoreCase(registrationCandidateRequest.getRole())) {
+            Candidate candidate = new Candidate();
+            candidate.setUser(savedUser);
+            candidateRepo.save(candidate);
+        }
+
         return Response.builder()
                 .status(201)
-                .message("Đăng ký thành công")
+                .message("Đăng ký thành công ứng viên!")
+                .userDto(userMapper.toDto(savedUser))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Response registerEmployer(EmployerRegisterRequest registrationRequest) {
+        User savedUser = saveUserWithRole(registrationRequest, RoleUser.EMPLOYER);
+        // Nếu là nhà tuyển dụng thì set thêm businessLicense
+        Employee employee = new Employee();
+        employee.setUser(savedUser);
+        if (registrationRequest.getBusinessLicense() != null && !registrationRequest.getBusinessLicense().isEmpty()) {
+            // Upload file PDF lên Cloudinary
+            String pdfUrl = cloudinaryService.uploadPdf(registrationRequest.getBusinessLicense());
+            employee.setBusinessLicense(pdfUrl);
+        } else {
+            employee.setBusinessLicense(null);
+        }
+        employeeRepo.save(employee);
+
+        return Response.builder()
+                .status(201)
+                .message("Đăng ký thành công nhà tuyển dụng!")
                 .userDto(userMapper.toDto(savedUser))
                 .build();
     }
@@ -142,7 +149,7 @@ public class UserServiceImpl implements UserService {
         List<UserDto> userDtos = usersPage.getContent().stream()
                 .map(userMapper::toDto)
                 .toList();
-        if(userDtos.isEmpty()){
+        if (userDtos.isEmpty()) {
             throw new ResourceNotFoundException("No users found");
         }
         return Response.builder()
@@ -158,6 +165,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Principal: " + authentication.getPrincipal());
+        System.out.println("Authorities: " + authentication.getAuthorities());
         // Kiểm tra xem user đã đăng nhập hợp lệ chưa
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
@@ -171,8 +180,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response logoutUser() {
-        User user = getLoginUser();
-        // Revoke tất cả refresh token của user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccessDeniedException("Bạn chưa đăng nhập hoặc phiên đã hết hạn");
+        }
+
+        String email = authentication.getName();
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with Email: " + email));
+
         refreshTokenService.revokeToken(user);
 
         return Response.builder()

@@ -1,5 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.RegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.UserDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
@@ -30,9 +31,36 @@ public class UserMapper {
         }
         return dto;
     }
+    public UserDto toLogoutDto(User user) {
+        if (user == null) return null;
+
+        UserDto dto = new UserDto();
+        dto.setUserId(user.getUserId());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setPhone(user.getPhone());
+        dto.setStatus(user.getStatus() != null ? user.getStatus().name() : null);
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+
+        // Chỉ map roles nếu userRoles không null
+        if (user.getUserRoles() != null && !user.getUserRoles().isEmpty()) {
+            List<String> roles = user.getUserRoles().stream()
+                    .filter(ur -> ur.getRole() != null)
+                    .map(ur -> ur.getRole().getRoleName())
+                    .collect(Collectors.toList());
+            dto.setRoles(roles);
+        }
+
+        return dto;
+    }
 
     public User toEntity(RegisterRequest registerRequest) {
         return modelMapper.map(registerRequest, User.class);
+    }
+
+    public User toEntity(CandidateRegisterRequest registerCandidateRequest) {
+        return modelMapper.map(registerCandidateRequest, User.class);
     }
 
 
