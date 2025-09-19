@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
+public abstract class RegisterRequest {
     @NotBlank(message = "Họ và tên không được để trống")
     private String fullName;
 
@@ -29,8 +29,5 @@ public class RegisterRequest {
     private String confirmPassword;
 
     @NotNull(message = "Vai trò không được để trống")
-    private String role; // "UNG_VIEN" hoặc "NHA_TUYEN_DUNG"
-
-    @Nullable
-    private MultipartFile businessLicense;
+    private String role;
 }

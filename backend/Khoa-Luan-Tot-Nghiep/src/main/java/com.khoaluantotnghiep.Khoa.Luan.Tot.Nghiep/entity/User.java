@@ -1,5 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -47,21 +48,26 @@ public class User {
 
     // Relations
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Feedback> feedbacks;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Policy> policies;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<SampleCV> sampleCVs;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Candidate candidate;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Employee employee;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UserRole> userRoles;
 
     @PrePersist
