@@ -12,4 +12,7 @@ public interface UserService {
     Response getAllUsers(int page, int size);
     User getLoginUser();
     Response logoutUser();
+    Response changePassword(PasswordChangeRequest request);
+    Response forgotPassword(String email);
+    Response resetPassword(String token, String newPassword, String confirmPassword);
 }

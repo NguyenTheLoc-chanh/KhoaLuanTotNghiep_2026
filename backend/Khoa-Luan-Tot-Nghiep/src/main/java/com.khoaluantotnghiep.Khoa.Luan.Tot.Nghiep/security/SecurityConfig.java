@@ -28,7 +28,7 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable) // tắt CSRF (REST API không cần CSRF token)
                 .cors(Customizer.withDefaults()) // bật CORS với cấu hình mặc định
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/auth/login", "/api/auth/register","/swagger-ui/**","/v3/api-docs/**")
+                        .requestMatchers("/api/auth/**", "/api/google/**", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()// các endpoint này được truy cập không cần đăng nhập
                         .anyRequest().authenticated()) // các request khác cần đăng nhập
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -46,5 +46,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
     }
 }
