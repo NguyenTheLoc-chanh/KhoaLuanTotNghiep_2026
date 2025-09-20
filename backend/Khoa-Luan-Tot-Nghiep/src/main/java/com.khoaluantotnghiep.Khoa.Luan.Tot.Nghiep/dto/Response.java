@@ -19,6 +19,7 @@ public class Response {
     private String refreshToken;
     private List<String> roles;
     private String expirationTime;
+    private String googleAuthUrl;
 
     private Integer currentPage;
     private Long totalItems;

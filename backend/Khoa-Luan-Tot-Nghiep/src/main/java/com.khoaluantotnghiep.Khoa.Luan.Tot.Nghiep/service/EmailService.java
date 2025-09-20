@@ -1,0 +1,62 @@
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import java.time.Year;
+
+@Service
+@RequiredArgsConstructor
+public class EmailService {
+
+    private final JavaMailSender mailSender;
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
+    // Load file template từ resources/templates
+    private String loadTemplate(String filename) {
+        try {
+            ClassPathResource resource = new ClassPathResource("templates/" + filename);
+            return Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Không thể đọc template email: " + filename, e);
+        }
+    }
+
+    public void sendResetPasswordEmail(String to, String resetLink, int expiryMinutes) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail); // email cấu hình
+            helper.setTo(to);
+            helper.setSubject("Đặt lại mật khẩu của bạn");
+
+            // Load template HTML
+            String template = loadTemplate("reset-password-email-template.html");
+
+            // Thay thế placeholder trong template
+            String htmlContent = template
+                    .replace("${email}", to)
+                    .replace("${expiryMinutes}", String.valueOf(expiryMinutes))
+                    .replace("${resetLink}", resetLink)
+                    .replace("${year}", String.valueOf(Year.now().getValue()));
+
+            helper.setText(htmlContent, true); // true = gửi HTML
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Gửi email thất bại", e);
+        }
+    }
+}

@@ -3,6 +3,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.UserRole;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ConflictException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -54,7 +55,27 @@ public class JwtUtils {
                 .signWith(secretKey)
                 .compact();
     }
-
+    // Tạo token để reset password, thời gian sống ngắn 5 phút
+    public String generateResetPasswordToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("type", "RESET_PASSWORD")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 5 * 60 * 1000)) // 5 phút
+                .signWith(secretKey)
+                .compact();
+    }
+    public String validateResetPasswordToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)             // thay cho setSigningKey
+                .build()
+                .parseSignedClaims(token)          // thay cho parseClaimsJws
+                .getPayload();
+        if (!"RESET_PASSWORD".equals(claims.get("type", String.class))) {
+            throw new ConflictException("Token không hợp lệ");
+        }
+        return claims.getSubject(); // return email
+    }
 
     public String getUserNameFromToken(String token){
         return extractClaim(token, Claims::getSubject);

@@ -2,8 +2,6 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.*;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

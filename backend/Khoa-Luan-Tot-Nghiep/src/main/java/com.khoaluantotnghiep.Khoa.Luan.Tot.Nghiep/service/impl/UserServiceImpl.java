@@ -9,6 +9,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.UserMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.CloudinaryService;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenServiceImpl refreshTokenService;
     private final JwtUtils jwtUtils;
     private final CloudinaryService cloudinaryService;
+    private final EmailService emailService;
     private final UserMapper userMapper;
 
     @Override
@@ -165,8 +167,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Principal: " + authentication.getPrincipal());
-        System.out.println("Authorities: " + authentication.getAuthorities());
         // Kiểm tra xem user đã đăng nhập hợp lệ chưa
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
@@ -196,6 +196,67 @@ public class UserServiceImpl implements UserService {
         return Response.builder()
                 .status(200)
                 .message("Logout thành công!")
+                .build();
+    }
+
+    @Override
+    public Response changePassword(PasswordChangeRequest request) {
+        User currentUser = getLoginUser();
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+            throw new ConflictException("Mật khẩu cũ không chính xác.");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new ConflictException("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+        }
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepo.save(currentUser);
+        refreshTokenService.revokeToken(currentUser);
+        return Response.builder()
+                .status(200)
+                .message("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.")
+                .build();
+    }
+
+    @Override
+    public Response forgotPassword(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Email không tồn tại trên hệ thống. Vui lòng kiểm tra lại."));
+
+        // Tạo JWT reset token
+        String resetToken = jwtUtils.generateResetPasswordToken(user.getEmail());
+
+        // Link reset
+        String resetLink = "http://localhost:3000/reset-password?token=" + resetToken;
+
+        // Gửi email
+        emailService.sendResetPasswordEmail(user.getEmail(), resetLink, 5);
+
+        return Response.builder()
+                .status(200)
+                .message("Hãy kiểm tra email của bạn. Sau đó nhấn vào link trong hộp thư để đổi lại mật khẩu.")
+                .build();
+    }
+
+    @Override
+    public Response resetPassword(String token, String newPassword, String confirmPassword) {
+        String email = jwtUtils.validateResetPasswordToken(token);
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Email không tồn tại trên hệ thống. Vui lòng kiểm tra lại."));
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ConflictException("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+
+        // Hủy refresh token cũ để bắt buộc login lại
+        refreshTokenService.revokeToken(user);
+
+        return Response.builder()
+                .status(200)
+                .message("Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.")
                 .build();
     }
 }
