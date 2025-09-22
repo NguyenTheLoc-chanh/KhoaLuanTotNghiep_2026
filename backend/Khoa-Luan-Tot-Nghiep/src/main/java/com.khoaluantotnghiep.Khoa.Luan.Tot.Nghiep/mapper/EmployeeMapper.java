@@ -17,6 +17,8 @@ public class EmployeeMapper {
         EmployeeDto dto = modelMapper.map(employee, EmployeeDto.class);
         if (employee.getUser() != null) {
             dto.setUserId(employee.getUser().getUserId());
+            dto.setFullName(employee.getUser().getFullName());
+            dto.setStatus(employee.getUser().getStatus().toString());
         }
         return dto;
     }

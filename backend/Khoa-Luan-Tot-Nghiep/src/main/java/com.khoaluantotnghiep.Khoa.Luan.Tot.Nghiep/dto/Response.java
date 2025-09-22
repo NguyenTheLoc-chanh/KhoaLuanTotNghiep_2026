@@ -28,6 +28,12 @@ public class Response {
     private UserDto userDto;
     private List<UserDto> userDtoList;
 
+    private CandidateDto candidateDto;
+    private List<CandidateDto> candidateDtoList;
+
+    private EmployeeDto employerDto;
+    private List<EmployeeDto> employerDtoList;
+
     private JobPostingDto jobPostingDto;
     private List<JobPostingDto> jobPostingDtoList;
 
