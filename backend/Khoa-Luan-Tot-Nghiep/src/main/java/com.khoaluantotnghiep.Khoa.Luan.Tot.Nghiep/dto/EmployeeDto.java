@@ -24,4 +24,6 @@ public class EmployeeDto {
     private String businessLicense;
 
     private Long userId;
+    private String fullName;
+    private String status;
 }

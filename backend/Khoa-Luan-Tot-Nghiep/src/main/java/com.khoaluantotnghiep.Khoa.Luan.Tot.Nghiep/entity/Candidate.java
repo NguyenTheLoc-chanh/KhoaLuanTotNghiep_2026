@@ -21,7 +21,7 @@ public class Candidate {
     private Integer experienceYear;
     private String fCv;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 

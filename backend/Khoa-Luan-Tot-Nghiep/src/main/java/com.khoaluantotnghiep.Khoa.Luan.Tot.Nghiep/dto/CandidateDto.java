@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CandidateDto {
+    private String fullName;
     private Long candidateId;
     private String avatar;
     private Integer experienceYear;
     private String fCv;
 
     private Long userId;
+    private String status;
 }

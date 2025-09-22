@@ -17,6 +17,8 @@ public class CandidateMapper {
         CandidateDto dto = modelMapper.map(candidate, CandidateDto.class);
         if (candidate.getUser() != null) {
             dto.setUserId(candidate.getUser().getUserId());
+            dto.setFullName(candidate.getUser().getFullName());
+            dto.setStatus(candidate.getUser().getStatus().toString());
         }
         return dto;
     }

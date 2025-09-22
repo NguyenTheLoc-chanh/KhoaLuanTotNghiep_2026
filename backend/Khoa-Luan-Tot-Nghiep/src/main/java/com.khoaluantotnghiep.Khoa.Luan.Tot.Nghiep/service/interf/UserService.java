@@ -8,11 +8,5 @@ public interface UserService {
     User saveUserWithRole(RegisterRequest request, RoleUser roleEnum);
     Response registerCandidate(CandidateRegisterRequest registrationRequest );
     Response registerEmployer(EmployerRegisterRequest registrationRequest );
-    Response loginUser(LoginRequest loginRequest );
     Response getAllUsers(int page, int size);
-    User getLoginUser();
-    Response logoutUser();
-    Response changePassword(PasswordChangeRequest request);
-    Response forgotPassword(String email);
-    Response resetPassword(String token, String newPassword, String confirmPassword);
 }
