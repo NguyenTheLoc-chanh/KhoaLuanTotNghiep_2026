@@ -12,4 +12,6 @@ public interface JobPostingService {
     Response searchJobPostings(String keyword, int page, int size);
     Response filterJobPostings(String location, String jobType, int page, int size);
     Response getJobPostingsByCompany(Long employeeId, int page, int size);
+    Response approveJobPosting(Long id);
+    Response lockJobPosting(Long id);
 }

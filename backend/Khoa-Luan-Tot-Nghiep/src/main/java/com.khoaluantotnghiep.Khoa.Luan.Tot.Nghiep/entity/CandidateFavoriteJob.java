@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tblCandidateFavoriteJobs")
 @Data
@@ -22,4 +24,7 @@ public class CandidateFavoriteJob {
     @ManyToOne
     @JoinColumn(name = "candidate_id", referencedColumnName = "candidateId", nullable = false)
     private Candidate candidate;
+
+    @Column(name = "saveDate", columnDefinition = "DATETIME")
+    private LocalDateTime saveDate;
 }

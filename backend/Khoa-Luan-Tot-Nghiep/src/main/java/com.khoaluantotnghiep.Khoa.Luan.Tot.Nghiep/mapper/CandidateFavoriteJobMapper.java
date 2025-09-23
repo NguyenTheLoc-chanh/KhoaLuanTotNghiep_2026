@@ -15,9 +15,6 @@ public class CandidateFavoriteJobMapper {
 
     public CandidateFavoriteJobDto toDto(CandidateFavoriteJob entity) {
         CandidateFavoriteJobDto dto = modelMapper.map(entity, CandidateFavoriteJobDto.class);
-        if (entity.getJobPosting() != null) {
-            dto.setJobId(entity.getJobPosting().getJobId());
-        }
         if (entity.getCandidate() != null) {
             dto.setCandidateId(entity.getCandidate().getCandidateId());
         }

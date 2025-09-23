@@ -14,11 +14,7 @@ public class JobPostingMapper {
     }
 
     public JobPostingDto toDto(JobPosting jobPosting) {
-        JobPostingDto dto = modelMapper.map(jobPosting, JobPostingDto.class);
-        if (jobPosting.getEmployee() != null) {
-            dto.setEmployeeId(jobPosting.getEmployee().getEmployeeId());
-        }
-        return dto;
+        return modelMapper.map(jobPosting, JobPostingDto.class);
     }
 
     public JobPosting toEntity(JobPostingDto dto) {

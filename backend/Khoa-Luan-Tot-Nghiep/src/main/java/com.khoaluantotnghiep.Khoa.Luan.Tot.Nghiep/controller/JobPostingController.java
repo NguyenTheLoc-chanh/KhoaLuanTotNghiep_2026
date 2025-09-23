@@ -267,4 +267,61 @@ public class JobPostingController {
         Response response = jobPostingService.getJobPostingsByCompany(employeeId, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+    // ===== APPROVE =====
+    @Operation(
+            summary = "Duyệt tin tuyển dụng",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Duyệt thành công",
+                            content = @Content(
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Job posting approved successfully\",\n" +
+                                                    "  \"jobPostingDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"title\": \"Java Backend Developer\",\n" +
+                                                    "    \"status\": \"ACTIVE\"\n" +
+                                                    "  }\n" +"}"
+                                    )
+                            )
+                    )
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Response> approveJobPosting(@PathVariable Long id) {
+        Response response = jobPostingService.approveJobPosting(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    // ===== LOCK =====
+    @Operation(
+            summary = "Khóa tin tuyển dụng",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Khóa thành công",
+                            content = @Content(
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Job posting locked successfully\",\n" +
+                                                    "  \"jobPostingDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"title\": \"Java Backend Developer\",\n" +
+                                                    "    \"status\": \"LOCKED\"\n" +"  }\n" +"}"
+                                    )
+                            )
+                    )
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/{id}/lock")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYER')")
+    public ResponseEntity<Response> lockJobPosting(@PathVariable Long id) {
+        Response response = jobPostingService.lockJobPosting(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }
