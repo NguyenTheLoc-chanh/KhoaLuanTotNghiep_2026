@@ -1,12 +1,19 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Candidate;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.CandidateMapper;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobApplicationMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.CandidateRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobApplicationRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.UserRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.CloudinaryService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.CandidateService;
@@ -28,6 +35,9 @@ public class CandidateServiceImpl implements CandidateService {
     private final  UserRepo userRepo;
     private final  CandidateMapper candidateMapper;
     private final  CloudinaryService cloudinaryService;
+    private final JobApplicationRepo jobApplicationRepo;
+    private final JobPostingRepo jobPostingRepo;
+    private final JobApplicationMapper jobApplicationMapper;
 
     @Override
     public Response createCandidate(CandidateDto candidateDto) {
@@ -156,6 +166,47 @@ public class CandidateServiceImpl implements CandidateService {
                 .currentPage(candidatePage.getNumber())
                 .totalItems(candidatePage.getTotalElements())
                 .totalPages(candidatePage.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public Response submitApplication(JobApplicationRequest applyRequest, MultipartFile fCvFile) {
+        Candidate candidate = candidateRepo.findById(applyRequest.getCandidateId())
+                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + applyRequest.getCandidateId()));
+        if (candidate == null) {
+            return Response.builder()
+                    .status(404)
+                    .message("Candidate not found")
+                    .build();
+        }
+        JobPosting jobPosting = jobPostingRepo.findById(applyRequest.getJobId())
+                .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id: " + applyRequest.getJobId()));
+        if (jobPosting == null) {
+            return Response.builder()
+                    .status(404)
+                    .message("Job posting not found")
+                    .build();
+        }
+        jobApplicationRepo.findByCandidate_CandidateIdAndJobPosting_JobId(applyRequest.getCandidateId(), applyRequest.getJobId())
+                .ifPresent(a -> {
+                    throw new IllegalStateException("You have already applied for this job");
+                });
+        JobApplication application = new JobApplication();
+        application.setCandidate(candidate);
+        application.setJobPosting(jobPosting);
+        application.setFullName(application.getFullName());
+        application.setEmail(application.getEmail());
+        application.setPhone(application.getPhone());
+        if (fCvFile != null && !fCvFile.isEmpty()) {
+            String fCvUrl = cloudinaryService.uploadPdf(fCvFile);
+            application.setFCv(fCvUrl);
+        }
+        JobApplication savedApplication = jobApplicationRepo.save(application);
+        JobApplicationDto applicationDto = jobApplicationMapper.toDto(savedApplication);
+        return Response.builder()
+                .status(201)
+                .message("Job application submitted successfully")
+                .jobApplicationDto(applicationDto)
                 .build();
     }
 

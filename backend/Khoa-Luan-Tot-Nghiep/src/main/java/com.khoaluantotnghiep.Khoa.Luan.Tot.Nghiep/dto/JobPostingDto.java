@@ -34,5 +34,5 @@ public class JobPostingDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Long employeeId;
+    private EmployeeDto employee;
 }

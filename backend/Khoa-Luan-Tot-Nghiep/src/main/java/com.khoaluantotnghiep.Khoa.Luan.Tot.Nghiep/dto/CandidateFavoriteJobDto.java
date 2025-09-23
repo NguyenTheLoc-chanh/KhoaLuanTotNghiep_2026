@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CandidateFavoriteJobDto {
     private Long favoriteJobId;
-    private Long jobId;
+    private JobPostingDto jobPosting;
     private Long candidateId;
+    private LocalDateTime saveDate;
 }

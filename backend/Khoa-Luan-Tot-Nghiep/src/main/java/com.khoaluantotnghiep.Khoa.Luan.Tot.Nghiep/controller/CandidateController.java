@@ -3,6 +3,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.CandidateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -143,4 +144,30 @@ public class CandidateController {
         Response response = candidateService.getAllCandidates(page, size, sortBy, sortDir, search);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    @Operation(
+            summary = "Ứng viên ứng tuyển vào công việc",
+            description = "Ứng viên gửi thông tin ứng tuyển (fullName, email, phone, CV file) tới jobId",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Ứng tuyển thành công"),
+                    @ApiResponse(responseCode = "400", description = "Ứng tuyển trùng hoặc dữ liệu không hợp lệ"),
+                    @ApiResponse(responseCode = "404", description = "Không tìm thấy Candidate hoặc Job")
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping(value = "/{candidateId}/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ResponseEntity<Response> applyJob(
+            @PathVariable Long candidateId,
+            @RequestPart("applyRequest") JobApplicationRequest applyRequest,
+            @RequestPart(value = "fCvFile", required = false) MultipartFile fCvFile
+    ) {
+        // set lại candidateId cho chắc ăn, tránh client truyền sai
+        applyRequest.setCandidateId(candidateId);
+
+        Response response = candidateService.submitApplication(applyRequest, fCvFile);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+
 }

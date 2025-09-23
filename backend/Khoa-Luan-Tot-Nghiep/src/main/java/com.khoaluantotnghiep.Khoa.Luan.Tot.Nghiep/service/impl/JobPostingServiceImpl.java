@@ -16,8 +16,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,7 +34,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         if (dto.getTitle() == null || dto.getTitle().isBlank()) {
             throw new BadRequestException("Job title cannot be empty");
         }
-        if (dto.getEmployeeId() == null) {
+        if (dto.getEmployee().getEmployeeId() == null) {
             throw new BadRequestException("EmployeeId is required");
         }
     }
@@ -54,12 +56,27 @@ public class JobPostingServiceImpl implements JobPostingService {
         jobPosting.setEmployee(employee);
         return jobPosting;
     }
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void autoUpdateExpiredJobPostings() {
+        jobPostingRepo.updateExpiredJobs(LocalDateTime.now());
+    }
+
+    private JobPosting checkAndUpdateExpiration(JobPosting posting) {
+        if (posting.getEndDate() != null
+                && posting.getEndDate().isBefore(LocalDateTime.now())
+                && posting.getStatus() == JobPostingStatus.ACTIVE) {
+            posting.setStatus(JobPostingStatus.EXPIRED);
+            return jobPostingRepo.save(posting);
+        }
+        return posting;
+    }
+
 
     @Override
     public Response createJobPosting(JobPostingDto jobPostingDto) {
         validateJobPostingDto(jobPostingDto);
-        Employee employee = employeeRepo.findById(jobPostingDto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + jobPostingDto.getEmployeeId()));
+        Employee employee = employeeRepo.findById(jobPostingDto.getEmployee().getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + jobPostingDto.getEmployee().getEmployeeId()));
 
         JobPosting jobPosting = buildJobPosting(jobPostingDto, employee);
         JobPosting saved = jobPostingRepo.save(jobPosting);
@@ -78,6 +95,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         Page<JobPosting> postings = jobPostingRepo.findAll(pageable);
 
         List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
+                .map(this::checkAndUpdateExpiration)
                 .map(jobPostingMapper::toDto)
                 .toList();
 
@@ -99,6 +117,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     public Response getJobPostingById(Long id) {
         JobPosting posting = jobPostingRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id " + id));
+
+        posting = checkAndUpdateExpiration(posting);
 
         JobPostingDto postingDto = jobPostingMapper.toDto(posting);
 
@@ -215,6 +235,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             throw new ResourceNotFoundException("No job postings found for the company with id " + employeeId);
         }
         List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
+                .map(this::checkAndUpdateExpiration)
                 .map(jobPostingMapper::toDto)
                 .toList();
 
@@ -225,6 +246,40 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .currentPage(postings.getNumber())
                 .totalItems(postings.getTotalElements())
                 .totalPages(postings.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public Response approveJobPosting(Long id) {
+        JobPosting posting = jobPostingRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id " + id));
+        if (posting.getStatus() != JobPostingStatus.PENDING) {
+            throw new BadRequestException("Only pending job postings can be approved");
+        }
+        posting.setStatus(JobPostingStatus.ACTIVE);
+        JobPosting updated = jobPostingRepo.save(posting);
+        JobPostingDto updatedDto = jobPostingMapper.toDto(updated);
+        return Response.builder()
+                .status(200)
+                .message("Job posting approved successfully")
+                .jobPostingDto(updatedDto)
+                .build();
+    }
+
+    @Override
+    public Response lockJobPosting(Long id) {
+        JobPosting posting = jobPostingRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id " + id));
+        if (posting.getStatus() == JobPostingStatus.LOCKED) {
+            throw new BadRequestException("Job posting is already locked");
+        }
+        posting.setStatus(JobPostingStatus.LOCKED);
+        JobPosting updated = jobPostingRepo.save(posting);
+        JobPostingDto updatedDto = jobPostingMapper.toDto(updated);
+        return Response.builder()
+                .status(200)
+                .message("Job posting locked successfully")
+                .jobPostingDto(updatedDto)
                 .build();
     }
 }
