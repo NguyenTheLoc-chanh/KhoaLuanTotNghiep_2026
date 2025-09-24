@@ -147,9 +147,35 @@ public class CandidateController {
 
     @Operation(
             summary = "Ứng viên ứng tuyển vào công việc",
-            description = "Ứng viên gửi thông tin ứng tuyển (fullName, email, phone, CV file) tới jobId",
+            description = "Ứng viên gửi thông tin ứng tuyển (fullName, email, phone, CV file) tới jobId. CV là bắt buộc.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(
+                                    example = "applyRequest={\"jobId\":1,\"fullName\":\"Nguyễn Thế Lộc\",\"email\":\"nguyentheloc28122004@gmail.com\",\"phone\":\"0799043607\"}\n" +
+                                            "fCvFile=(file - PDF)"
+                            )
+                    )
+            ),
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Ứng tuyển thành công"),
+                    @ApiResponse(responseCode = "201", description = "Ứng tuyển thành công",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 201,\n" +
+                                                    "  \"message\": \"Job application submitted successfully\",\n" +
+                                                    "  \"jobApplicationDto\": {\n" +
+                                                    "    \"applicationId\": 10,\n" +
+                                                    "    \"jobId\": 1,\n" +
+                                                    "    \"candidateId\": 5,\n" +
+                                                    "    \"fullName\": \"Nguyễn Thế Lộc\",\n" +
+                                                    "    \"email\": \"nguyentheloc28122004@gmail.com\",\n" +
+                                                    "    \"phone\": \"0799043607\",\n" +
+                                                    "    \"fCv\": \"https://res.cloudinary.com/.../cv_nguyentheloc.pdf\"\n" +
+                                                    "  }\n" +
+                                                    "}"
+                                    ))),
                     @ApiResponse(responseCode = "400", description = "Ứng tuyển trùng hoặc dữ liệu không hợp lệ"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy Candidate hoặc Job")
             },
@@ -159,15 +185,9 @@ public class CandidateController {
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<Response> applyJob(
             @PathVariable Long candidateId,
-            @RequestPart("applyRequest") JobApplicationRequest applyRequest,
-            @RequestPart(value = "fCvFile", required = false) MultipartFile fCvFile
+            @Valid @ModelAttribute JobApplicationRequest applyRequest
     ) {
-        // set lại candidateId cho chắc ăn, tránh client truyền sai
-        applyRequest.setCandidateId(candidateId);
-
-        Response response = candidateService.submitApplication(applyRequest, fCvFile);
+        Response response = candidateService.submitApplication(candidateId, applyRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-
-
 }

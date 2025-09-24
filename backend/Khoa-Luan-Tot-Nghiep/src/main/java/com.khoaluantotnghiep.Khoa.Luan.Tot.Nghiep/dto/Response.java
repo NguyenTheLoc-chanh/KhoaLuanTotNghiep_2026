@@ -43,6 +43,9 @@ public class Response {
     private PolicyDto policyDto;
     private List<PolicyDto> policyDtoList;
 
+    private FeedbackDto feed;
+    private List<FeedbackDto> feedbackDtoList;
+
     private JobApplicationDto jobApplicationDto;
     private List<JobApplicationDto> jobApplicationDtoList;
 
