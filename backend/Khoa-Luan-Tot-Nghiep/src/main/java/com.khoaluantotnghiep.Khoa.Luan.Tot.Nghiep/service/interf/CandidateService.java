@@ -13,5 +13,5 @@ public interface CandidateService {
     Response updateCandidateFCv(Long userId, MultipartFile fCvFile);
     Response deleteCandidate(Long userId);
     Response getAllCandidates(int page, int size, String sortBy, String sortDir, String search);
-    Response submitApplication(JobApplicationRequest applyRequest, MultipartFile fCvFile);
+    Response submitApplication(Long candidateId,JobApplicationRequest applyRequest);
 }

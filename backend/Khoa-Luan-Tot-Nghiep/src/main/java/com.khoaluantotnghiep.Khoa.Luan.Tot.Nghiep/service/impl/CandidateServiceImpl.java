@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -31,10 +32,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CandidateServiceImpl implements CandidateService {
 
-    private final  CandidateRepo candidateRepo;
-    private final  UserRepo userRepo;
-    private final  CandidateMapper candidateMapper;
-    private final  CloudinaryService cloudinaryService;
+    private final CandidateRepo candidateRepo;
+    private final UserRepo userRepo;
+    private final CandidateMapper candidateMapper;
+    private final CloudinaryService cloudinaryService;
     private final JobApplicationRepo jobApplicationRepo;
     private final JobPostingRepo jobPostingRepo;
     private final JobApplicationMapper jobApplicationMapper;
@@ -170,9 +171,10 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public Response submitApplication(JobApplicationRequest applyRequest, MultipartFile fCvFile) {
-        Candidate candidate = candidateRepo.findById(applyRequest.getCandidateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + applyRequest.getCandidateId()));
+    @Transactional
+    public Response submitApplication(Long candidateId, JobApplicationRequest applyRequest) {
+        Candidate candidate = candidateRepo.findById(candidateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + candidateId));
         if (candidate == null) {
             return Response.builder()
                     .status(404)
@@ -187,20 +189,26 @@ public class CandidateServiceImpl implements CandidateService {
                     .message("Job posting not found")
                     .build();
         }
-        jobApplicationRepo.findByCandidate_CandidateIdAndJobPosting_JobId(applyRequest.getCandidateId(), applyRequest.getJobId())
+        jobApplicationRepo.findByCandidate_CandidateIdAndJobPosting_JobId(candidateId, applyRequest.getJobId())
                 .ifPresent(a -> {
                     throw new IllegalStateException("You have already applied for this job");
                 });
+        if (applyRequest.getFCvFile() == null || applyRequest.getFCvFile().isEmpty()) {
+            throw new IllegalArgumentException("CV file is required");
+        }
+        if (applyRequest.getFullName() == null || applyRequest.getEmail() == null || applyRequest.getPhone() == null) {
+            throw new IllegalArgumentException("Missing required information");
+        }
         JobApplication application = new JobApplication();
         application.setCandidate(candidate);
         application.setJobPosting(jobPosting);
-        application.setFullName(application.getFullName());
-        application.setEmail(application.getEmail());
-        application.setPhone(application.getPhone());
-        if (fCvFile != null && !fCvFile.isEmpty()) {
-            String fCvUrl = cloudinaryService.uploadPdf(fCvFile);
-            application.setFCv(fCvUrl);
-        }
+        application.setFullName(applyRequest.getFullName());
+        application.setEmail(applyRequest.getEmail());
+        application.setPhone(applyRequest.getPhone());
+
+        String fCvUrl = cloudinaryService.uploadPdf(applyRequest.getFCvFile());
+        application.setFCv(fCvUrl);
+
         JobApplication savedApplication = jobApplicationRepo.save(application);
         JobApplicationDto applicationDto = jobApplicationMapper.toDto(savedApplication);
         return Response.builder()
