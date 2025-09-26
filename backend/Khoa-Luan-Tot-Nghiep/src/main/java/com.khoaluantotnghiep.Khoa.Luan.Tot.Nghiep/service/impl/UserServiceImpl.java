@@ -99,13 +99,22 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public Response registerAdmin(AdminRegisterRequest registrationRequest) {
+        User savedUser = saveUserWithRole(registrationRequest, RoleUser.ADMIN);
+        return Response.builder()
+                .status(201)
+                .message("Đăng ký thành công admin!")
+                .userDto(userMapper.toDto(savedUser))
+                .build();
+    }
 
 
     @Override
     public Response getAllUsers(int page, int size) {
         if (page < 0) page = 0;
         if (size <= 0) size = 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("userId").descending());
         Page<User> usersPage = userRepo.findAll(pageable);
 
         List<UserDto> userDtos = usersPage.getContent().stream()

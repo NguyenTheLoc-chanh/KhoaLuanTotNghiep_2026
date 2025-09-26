@@ -25,6 +25,8 @@ public class Response {
     private Long totalItems;
     private Integer totalPages;
 
+    private String shareLinkJob;
+
     private UserDto userDto;
     private List<UserDto> userDtoList;
 

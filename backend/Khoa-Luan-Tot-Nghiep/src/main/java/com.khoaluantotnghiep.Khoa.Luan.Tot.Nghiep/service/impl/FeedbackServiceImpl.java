@@ -34,9 +34,6 @@ public class FeedbackServiceImpl implements FeedbackService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy User với id = " + userId));
 
-        System.out.println(">>> Title = " + request.getTitle());
-        System.out.println(">>> Desc = " + request.getDescription());
-
         Feedback feedback = new Feedback();
         feedback.setTitle(request.getTitle());
         feedback.setDescription(request.getDescription());

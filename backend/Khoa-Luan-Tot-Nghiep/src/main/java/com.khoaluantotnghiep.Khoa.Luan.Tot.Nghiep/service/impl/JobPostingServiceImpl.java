@@ -10,6 +10,8 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundExce
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobPostingMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.EmployeeRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     private final JobPostingRepo jobPostingRepo;
     private final EmployeeRepo employeeRepo;
     private final JobPostingMapper jobPostingMapper;
+    private final JwtUtils jwtUtils;
+    private final EmailService emailService;
 
     private void validateJobPostingDto(JobPostingDto dto) {
         if (dto.getTitle() == null || dto.getTitle().isBlank()) {
@@ -259,6 +263,10 @@ public class JobPostingServiceImpl implements JobPostingService {
         posting.setStatus(JobPostingStatus.ACTIVE);
         JobPosting updated = jobPostingRepo.save(posting);
         JobPostingDto updatedDto = jobPostingMapper.toDto(updated);
+
+        String employerEmail = updated.getEmployee().getUser().getEmail();
+        String jobTitle = updated.getTitle();
+        emailService.sendJobPostingStatusUpdateEmail(employerEmail, jobTitle, "Đã duyệt");
         return Response.builder()
                 .status(200)
                 .message("Job posting approved successfully")
@@ -276,10 +284,46 @@ public class JobPostingServiceImpl implements JobPostingService {
         posting.setStatus(JobPostingStatus.LOCKED);
         JobPosting updated = jobPostingRepo.save(posting);
         JobPostingDto updatedDto = jobPostingMapper.toDto(updated);
+
+        String employerEmail = updated.getEmployee().getUser().getEmail();
+        String jobTitle = updated.getTitle();
+        emailService.sendJobPostingStatusUpdateEmail(employerEmail, jobTitle, "Đã khóa");
         return Response.builder()
                 .status(200)
                 .message("Job posting locked successfully")
                 .jobPostingDto(updatedDto)
+                .build();
+    }
+
+    @Override
+    public Response shareJobPosting(Long jobId) {
+        JobPosting posting = jobPostingRepo.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id " + jobId));
+        if (posting.getStatus() != JobPostingStatus.ACTIVE) {
+            throw new BadRequestException("Only active job postings can be shared");
+        }
+        String token = jwtUtils.generateShareToken(jobId);
+        String shareLink = "http://localhost:3000/public/job/" + token;
+        return Response.builder()
+                .status(200)
+                .message("Job posting share token generated successfully")
+                .shareLinkJob(shareLink)
+                .build();
+    }
+
+    @Override
+    public Response getJobPostingByShareToken(String token) {
+        Long jobId = jwtUtils.parseJobIdFromToken(token);
+        JobPosting posting = jobPostingRepo.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job posting not found with id " + jobId));
+        if (posting.getStatus() != JobPostingStatus.ACTIVE) {
+            throw new BadRequestException("The job posting is not active");
+        }
+        JobPostingDto postingDto = jobPostingMapper.toDto(posting);
+        return Response.builder()
+                .status(200)
+                .message("Job posting retrieved successfully from share token")
+                .jobPostingDto(postingDto)
                 .build();
     }
 }

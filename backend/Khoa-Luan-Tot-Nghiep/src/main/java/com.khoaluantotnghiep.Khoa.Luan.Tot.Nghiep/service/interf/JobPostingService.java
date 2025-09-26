@@ -14,4 +14,6 @@ public interface JobPostingService {
     Response getJobPostingsByCompany(Long employeeId, int page, int size);
     Response approveJobPosting(Long id);
     Response lockJobPosting(Long id);
+    Response shareJobPosting(Long jobId);
+    Response getJobPostingByShareToken(String token);
 }

@@ -8,5 +8,6 @@ public interface UserService {
     User saveUserWithRole(RegisterRequest request, RoleUser roleEnum);
     Response registerCandidate(CandidateRegisterRequest registrationRequest );
     Response registerEmployer(EmployerRegisterRequest registrationRequest );
+    Response registerAdmin(AdminRegisterRequest registrationRequest );
     Response getAllUsers(int page, int size);
 }
