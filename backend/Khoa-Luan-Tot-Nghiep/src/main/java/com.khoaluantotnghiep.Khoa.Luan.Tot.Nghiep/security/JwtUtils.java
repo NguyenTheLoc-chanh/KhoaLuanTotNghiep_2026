@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class JwtUtils {
 
     private static final long EXPIRATION_TIME = 1000L * 60L * 60L * 24L; // 1 ngày
+    private static final long SHARE_TOKEN_EXPIRATION_TIME = 1000L * 60L * 60L * 24L * 10L; // 7 ngày
     private SecretKey secretKey;
 
     @Value("${secreteJwtString}")
@@ -42,6 +43,7 @@ public class JwtUtils {
                 .map(Role::getRoleName)
                 .collect(Collectors.toList());
         claims.put("roles", roles); // lưu quyền vào token
+        claims.put("user_id", user.getUserId());
 
         return buildToken(claims, user.getEmail());
     }
@@ -75,6 +77,28 @@ public class JwtUtils {
             throw new ConflictException("Token không hợp lệ");
         }
         return claims.getSubject(); // return email
+    }
+
+    // Sinh token share
+    public String generateShareToken(Long jobId) {
+        return Jwts.builder()
+                .subject(String.valueOf(jobId))  // chứa jobId
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + SHARE_TOKEN_EXPIRATION_TIME))  // 7 ngày
+                .signWith(secretKey)
+                .compact();
+    }
+
+    // Giải mã token -> lấy jobId
+    public Long parseJobIdFromToken(String token) {
+        return Long.valueOf(
+                Jwts.parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .getSubject()
+        );
     }
 
     public String getUserNameFromToken(String token){

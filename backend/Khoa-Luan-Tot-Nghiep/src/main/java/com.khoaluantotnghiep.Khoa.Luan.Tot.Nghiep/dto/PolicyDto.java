@@ -19,6 +19,4 @@ public class PolicyDto {
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    private Long userId;
 }

@@ -59,4 +59,35 @@ public class EmailService {
             throw new RuntimeException("Gửi email thất bại", e);
         }
     }
+    /**
+     * Gửi email thông báo trạng thái tin tuyển dụng.
+     * @param to Email người nhận (nhà tuyển dụng)
+     * @param jobTitle Tiêu đề tin tuyển dụng
+     * @param newStatus Trạng thái mới (ACTIVE, LOCKED)
+     */
+    public void sendJobPostingStatusUpdateEmail(String to, String jobTitle, String newStatus) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Thông báo cập nhật trạng thái tin tuyển dụng: " + jobTitle);
+
+            String template = loadTemplate("job-posting-status-email-template.html");
+
+            // Thay thế các placeholder
+            String htmlContent = template
+                    .replace("${jobTitle}", jobTitle)
+                    .replace("${newStatus}", newStatus)
+                    .replace("${year}", String.valueOf(Year.now().getValue()));
+
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Gửi email thông báo trạng thái tin tuyển dụng thất bại", e);
+        }
+    }
 }

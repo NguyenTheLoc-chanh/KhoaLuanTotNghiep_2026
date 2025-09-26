@@ -14,11 +14,7 @@ public class PolicyMapper {
     }
 
     public PolicyDto toDto(Policy policy) {
-        PolicyDto dto = modelMapper.map(policy, PolicyDto.class);
-        if (policy.getUser() != null) {
-            dto.setUserId(policy.getUser().getUserId());
-        }
-        return dto;
+        return modelMapper.map(policy, PolicyDto.class);
     }
 
     public Policy toEntity(PolicyDto dto) {

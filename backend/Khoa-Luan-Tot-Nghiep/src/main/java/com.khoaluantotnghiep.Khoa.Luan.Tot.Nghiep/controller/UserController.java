@@ -1,5 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.AdminRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployerRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
@@ -108,6 +109,52 @@ public class UserController {
     @PostMapping(value = "/register/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Response> registerEmployer(@Valid @ModelAttribute EmployerRegisterRequest registerRequest) {
         Response response = userService.registerEmployer(registerRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    @Operation(
+            summary = "Đăng ký admin (Admin)",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Thông tin user cần đăng ký",
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"fullName\": \"Admin\",\n" +
+                                            "  \"email\": \"admin@gmail.com\",\n" +
+                                            "  \"password\": \"12345678\",\n" +
+                                            "  \"confirmPassword\": \"12345678\",\n" +
+                                            "  \"role\": \"ADMIN\"\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Đăng ký thành công",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(
+                                            example = "{\n" +
+                                                    "  \"status\": 201,\n" +
+                                                    "  \"message\": \"Đăng ký thành công\",\n" +
+                                                    "  \"userDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"email\": \"nguyentheloc@gmail.com\",\n" +
+                                                    "    \"role\": \"CANDIDATE\"\n" +
+                                                    "  }\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc mật khẩu không khớp"),
+                    @ApiResponse(responseCode = "409", description = "Email đã tồn tại")
+            }
+    )
+    @PostMapping("/register/admin")
+    public ResponseEntity<Response> registerAdmin(@Valid @RequestBody AdminRegisterRequest registerRequest) {
+        Response response = userService.registerAdmin(registerRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

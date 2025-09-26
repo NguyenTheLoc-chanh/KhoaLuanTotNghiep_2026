@@ -324,4 +324,69 @@ public class JobPostingController {
         Response response = jobPostingService.lockJobPosting(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+    // ===== SHARE JOB POSTING (EMPLOYER) =====
+    @Operation(
+            summary = "Tạo liên kết chia sẻ (share link) cho Job Posting",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tạo liên kết thành công",
+                            content = @Content(
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Job posting share token generated successfully\",\n" +
+                                                    "  \"shareLinkJob\": \"http://localhost:3000/public/job/eyJhbGciOiJIUzI1NiJ9...\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/{jobId}/share")
+    @PreAuthorize("hasRole('EMPLOYER')")
+    public ResponseEntity<Response> shareJobPosting(
+            @PathVariable Long jobId
+    ) {
+        Response response = jobPostingService.shareJobPosting(jobId);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    // --- NEW METHOD ---
+    // ===== GET JOB POSTING BY SHARE TOKEN (PUBLIC) =====
+    @Operation(
+            summary = "Lấy Job Posting bằng token chia sẻ (Public access)",
+            description = "Sử dụng token được tạo từ /api/job-postings/{jobId}/share",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lấy tin tuyển dụng thành công",
+                            content = @Content(
+                                    schema = @Schema(implementation = Response.class),
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Job posting retrieved successfully from share token\",\n" +
+                                                    "  \"jobPostingDto\": {\n" +
+                                                    "    \"id\": 1,\n" +
+                                                    "    \"title\": \"Java Backend Developer\",\n" +
+                                                    "    \"description\": \"Phát triển dịch vụ RESTful API cho hệ thống HRM\",\n" +
+                                                    "    \"address\": \"Hà Nội\",\n" +
+                                                    "    \"jobField\": \"Software Engineering\",\n" +
+                                                    "    \"salary\": \"1200-1500 USD\",\n" +
+                                                    "    \"status\": \"ACTIVE\",\n" +
+                                                    "    \"createdAt\": \"2025-09-22T08:00:00\"\n" +
+                                                    "  }\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/public/share-token")
+    public ResponseEntity<Response> getJobPostingByShareToken(@RequestParam String token) {
+        Response response = jobPostingService.getJobPostingByShareToken(token);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }
