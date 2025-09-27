@@ -18,6 +18,11 @@ import java.util.stream.Collectors;
 public class UserAuth implements UserDetails {
 
     private User user;
+
+    public Long getUserId() {
+        return user.getUserId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (user.getUserRoles() == null) {

@@ -3,6 +3,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeInfoCompanyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,41 +34,45 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Cập nhật thông tin công ty của Employer", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/{userId}/company-info")
+    @PutMapping("/company-info")
     @PreAuthorize("hasRole('EMPLOYER')")
     public ResponseEntity<Response> updateEmployeeInfoCompany(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @Valid @RequestBody EmployeeInfoCompanyRequest request) {
+        Long userId = userAuth.getUserId();
         Response response = employeeService.updateEmployeeInfoCompany(userId, request);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @Operation(summary = "Upload Avatar Employer", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/{userId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('EMPLOYER')")
     public ResponseEntity<Response> uploadAvatar(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @RequestParam("avatar") MultipartFile avatarFile) {
+        Long userId = userAuth.getUserId();
         Response response = employeeService.uploadAvatar(userId, avatarFile);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @Operation(summary = "Upload Logo Công ty", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/{userId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('EMPLOYER')")
     public ResponseEntity<Response> uploadCompanyLogo(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @RequestParam("companyLogo") MultipartFile companyLogoFile) {
+        Long userId = userAuth.getUserId();
         Response response = employeeService.uploadCompanyLogo(userId, companyLogoFile);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @Operation(summary = "Upload Giấy phép kinh doanh (PDF)", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping(value = "/{userId}/business-license", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/business-license", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('EMPLOYER')")
     public ResponseEntity<Response> uploadBusinessLicense(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @RequestParam("businessLicense") MultipartFile licenseFile) {
+        Long userId = userAuth.getUserId();
         Response response = employeeService.uploadBusinessLicense(userId, licenseFile);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
