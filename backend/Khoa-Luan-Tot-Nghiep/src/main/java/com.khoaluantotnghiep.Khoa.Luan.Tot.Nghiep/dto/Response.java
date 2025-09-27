@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -26,6 +27,8 @@ public class Response {
     private Integer totalPages;
 
     private String shareLinkJob;
+
+    private Map<String, Object> statistics;
 
     private UserDto userDto;
     private List<UserDto> userDtoList;

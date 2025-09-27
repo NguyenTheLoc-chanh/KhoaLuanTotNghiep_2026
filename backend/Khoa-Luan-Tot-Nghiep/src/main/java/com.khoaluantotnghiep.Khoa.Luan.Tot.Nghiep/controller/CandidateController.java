@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.CandidateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,20 +67,23 @@ public class CandidateController {
             },
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @GetMapping("/{userId}")
+    @GetMapping("/me")
     @PreAuthorize("hasAnyRole('CANDIDATE','ADMIN')")
-    public ResponseEntity<Response> getCandidateByUserId(@PathVariable Long userId) {
+    public ResponseEntity<Response> getCandidateByUserId(@AuthenticationPrincipal UserAuth userAuth) {
+        Long userId = userAuth.getUserId();
+
         Response response = candidateService.getCandidateByUserId(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @Operation(summary = "Cập nhật thông tin ứng viên (không bao gồm avatar)")
-    @PutMapping("/{userId}/info")
+    @PutMapping("/info")
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<Response> updateCandidateInfo(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @Valid @RequestBody CandidateDto candidateDto
     ) {
+        Long userId = userAuth.getUserId();
         candidateDto.setUserId(userId);
         Response response = candidateService.updateCandidateInfo(candidateDto);
         return ResponseEntity.status(response.getStatus()).body(response);
@@ -86,23 +91,25 @@ public class CandidateController {
 
     // ==== Update candidate avatar ====
     @Operation(summary = "Cập nhật avatar ứng viên")
-    @PutMapping(value = "/{userId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<Response> updateCandidateAvatar(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @RequestPart("avatarFile") MultipartFile avatarFile
     ) {
+        Long userId = userAuth.getUserId();
         Response response = candidateService.updateCandidateAvatar(userId, avatarFile);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @Operation(summary = "Cập nhật File CV ứng viên")
-    @PutMapping(value = "/{userId}/fileCV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/fileCV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<Response> updateCandidateFileCV(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @RequestPart("fCvFile") MultipartFile fCvFile
     ) {
+        Long userId = userAuth.getUserId();
         Response response = candidateService.updateCandidateFCv(userId, fCvFile);
         return ResponseEntity.status(response.getStatus()).body(response);
     }

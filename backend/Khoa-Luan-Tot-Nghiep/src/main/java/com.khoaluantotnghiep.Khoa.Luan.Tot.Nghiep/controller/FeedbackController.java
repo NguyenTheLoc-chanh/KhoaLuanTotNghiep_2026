@@ -2,6 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.FeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,12 +46,13 @@ public class FeedbackController {
                     )
             )
     )
-    @PostMapping("/{userId}")
+    @PostMapping("/create")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> createFeedback(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @org.springframework.web.bind.annotation.RequestBody FeedbackRequest request
     ) {
+        Long userId = userAuth.getUserId();
         Response response = feedbackService.createFeedback(userId, request);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
