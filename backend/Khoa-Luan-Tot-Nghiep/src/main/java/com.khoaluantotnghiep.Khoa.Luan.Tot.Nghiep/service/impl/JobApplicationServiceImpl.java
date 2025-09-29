@@ -8,6 +8,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.BadRequestException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobApplicationMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobApplicationRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     private final JobApplicationRepo jobApplicationRepo;
     private final JobApplicationMapper jobApplicationMapper;
+    private final EmailService emailService;
 
     @Override
     public Response getAllJobApplications(int page, int size, String sortBy, String sortDir, String search) {
@@ -139,6 +141,32 @@ public class JobApplicationServiceImpl implements JobApplicationService {
                 .status(200)
                 .message("Lọc ứng tuyển theo trạng thái thành công")
                 .jobApplicationDtoList(dtoList)
+                .build();
+    }
+
+    @Override
+    public Response sendInterviewLatter(Long jobApplicationId, String interviewDetails) {
+        JobApplication jobApp = jobApplicationRepo.findById(jobApplicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ứng tuyển ID = " + jobApplicationId));
+        if (jobApp.getStatus().equals(JobApplicationStatus.INTERVIEW_SENT)) {
+            throw new BadRequestException("Đã gửi thư mời phỏng vấn cho ứng viên này rồi!");
+        }
+        String candidateEmail = jobApp.getEmail();
+        String candidateName = jobApp.getFullName();
+
+        String content = interviewDetails.replace("${name}", candidateName);
+
+        emailService.sendInterviewLetter(
+                candidateEmail,
+                "Thư mời phỏng vấn",
+                content
+        );
+        jobApp.setStatus(JobApplicationStatus.INTERVIEW_SENT);
+        jobApplicationRepo.save(jobApp);
+
+        return Response.builder()
+                .status(200)
+                .message("Gửi thư mời phỏng vấn thành công tới " + candidateEmail)
                 .build();
     }
 }

@@ -133,4 +133,23 @@ public class JobApplicationController {
         Response response = jobApplicationService.getJobApplicationsByJobId(jobId, page, size, sortBy, sortDir);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    @Operation(
+            summary = "Gửi thư mời phỏng vấn",
+            description = "HR có thể nhập nội dung thư, dùng placeholder ${name} để hệ thống tự thay bằng tên ứng viên",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Gửi thư thành công"),
+                    @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển")
+            }
+    )
+    @PostMapping("/{id}/send-interview-letter")
+    @PreAuthorize("hasRole('EMPLOYER')")
+    public ResponseEntity<Response> sendInterviewLetter(
+            @Parameter(description = "ID ứng tuyển cần gửi thư") @PathVariable Long id,
+            @RequestBody String request
+    ) {
+        Response response = jobApplicationService.sendInterviewLatter(id, request);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
 }

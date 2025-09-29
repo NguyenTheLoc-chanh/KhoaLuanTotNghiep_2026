@@ -90,4 +90,22 @@ public class EmailService {
             throw new RuntimeException("Gửi email thông báo trạng thái tin tuyển dụng thất bại", e);
         }
     }
+    public void sendInterviewLetter(String to, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+
+            helper.setText(content, true);
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Gửi thư mời phỏng vấn thất bại", e);
+        }
+    }
+
 }

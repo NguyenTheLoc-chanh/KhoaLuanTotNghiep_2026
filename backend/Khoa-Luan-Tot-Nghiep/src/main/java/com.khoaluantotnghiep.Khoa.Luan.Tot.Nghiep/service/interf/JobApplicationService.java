@@ -9,4 +9,5 @@ public interface JobApplicationService {
     Response approveJobApplication(Long jobApplicationId);
     Response rejectJobApplication(Long jobApplicationId);
     Response filterJobApplicationsByStatus(String status, int page, int size, String sortBy, String sortDir);
+    Response sendInterviewLatter(Long jobApplicationId, String interviewDetails);
 }
