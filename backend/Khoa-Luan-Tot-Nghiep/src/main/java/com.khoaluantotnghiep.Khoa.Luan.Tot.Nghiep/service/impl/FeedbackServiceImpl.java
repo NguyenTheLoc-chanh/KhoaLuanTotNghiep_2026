@@ -11,6 +11,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundExce
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.FeedbackMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.FeedbackRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.UserRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.FeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final FeedbackRepo feedbackRepo;
     private final UserRepo userRepo;
     private final FeedbackMapper feedbackMapper;
+    private final EmailService emailService;
 
     @Override
     public Response createFeedback(Long userId, FeedbackRequest request) {
@@ -115,6 +117,22 @@ public class FeedbackServiceImpl implements FeedbackService {
         return Response.builder()
                 .status(200)
                 .message("Xóa feedback thành công")
+                .build();
+    }
+
+    @Override
+    public Response replyToFeedback(Long feedbackId, String replyContent) {
+        Feedback feedback = feedbackRepo.findById(feedbackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Feedback không tồn tại"));
+        emailService.sendFeedbackReplyEmail(feedback.getUser().getEmail(), replyContent);
+
+        feedback.setStatus(FeedbackStatus.RESOLVED);
+
+        feedbackRepo.save(feedback);
+
+        return Response.builder()
+                .status(200)
+                .message("Phản hồi feedback thành công")
                 .build();
     }
 }

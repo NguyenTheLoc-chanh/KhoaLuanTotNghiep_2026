@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Phản hồi từ hệ thống</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f9fc;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #0d6efd;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .content {
+            padding: 25px;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .content p {
+            margin-bottom: 15px;
+        }
+        .reply-box {
+            background-color: #f1f8ff;
+            border-left: 5px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #0d3c75;
+        }
+        .footer {
+            background-color: #f6f9fc;
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>Phản hồi từ hệ thống tuyển dụng việc làm</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <p>Kính chào bạn,</p>
+        <p>Cảm ơn bạn đã gửi phản hồi cho chúng tôi. Đội ngũ hỗ trợ đã xem xét và phản hồi như sau:</p>
+
+        <div class="reply-box">
+            ${replyContent}
+        </div>
+
+        <p>Nếu bạn còn thắc mắc hoặc cần hỗ trợ thêm, vui lòng liên hệ lại với chúng tôi.</p>
+        <p>Trân trọng,<br><strong>Đội ngũ hỗ trợ</strong></p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>Trân trọng,<br/>Đội ngũ Ứng dụng tuyển dụng</div>
+        <div class="small" style="margin-top:8px;">©09-${year}. All rights reserved. Made by Trang - Dũng - Lộc with Love</div>
+    </div>
+</div>
+</body>
+</html>

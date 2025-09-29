@@ -27,6 +27,7 @@ public class Response {
     private Integer totalPages;
 
     private String shareLinkJob;
+    private String shareLinkCV;
 
     private Map<String, Object> statistics;
 

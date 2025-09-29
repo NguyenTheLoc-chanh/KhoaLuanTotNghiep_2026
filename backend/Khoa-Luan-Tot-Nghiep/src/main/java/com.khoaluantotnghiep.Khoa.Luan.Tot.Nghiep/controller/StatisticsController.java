@@ -83,4 +83,19 @@ public class StatisticsController {
     public Response feedbackStatistics() {
         return statisticsService.feedbackStatistics();
     }
+    @Operation(
+            summary = "Thống kê mẫu CV",
+            description = "Trả về tổng số mẫu CV",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Thành công",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Response.class)))
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/sample-cvs")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Response sampleCVStatistics() {
+        return statisticsService.sampleCVStatistics();
+    }
 }
