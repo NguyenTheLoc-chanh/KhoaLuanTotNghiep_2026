@@ -7,4 +7,5 @@ public interface StatisticsService {
     Response employeeStatistics();
     Response feedbackStatistics();
     Response jobPostingStatistics();
+    Response sampleCVStatistics();
 }

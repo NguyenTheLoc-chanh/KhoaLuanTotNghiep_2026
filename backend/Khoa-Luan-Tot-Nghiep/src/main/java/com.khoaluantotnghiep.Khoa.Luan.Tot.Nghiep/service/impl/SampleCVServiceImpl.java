@@ -12,12 +12,18 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.UserRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.CloudinaryService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.SampleCVService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import org.springframework.http.HttpHeaders;
 import java.util.List;
 
 @Service
@@ -128,4 +134,27 @@ public class SampleCVServiceImpl implements SampleCVService {
                 .message("Xóa SampleCV thành công")
                 .build();
     }
+
+    @Override
+    public ResponseEntity<Resource> downloadSampleCVFile(Long sampleCVId) {
+        SampleCV sampleCV = sampleCVRepo.findById(sampleCVId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy SampleCV với id = " + sampleCVId));
+
+        if (sampleCV.getFCvFileFormat() == null || sampleCV.getFCvFileFormat().isEmpty()) {
+            throw new ResourceNotFoundException("Mẫu CV không có file đính kèm");
+        }
+
+        try {
+            // Tạo resource từ URL
+            UrlResource resource = new UrlResource(URI.create(sampleCV.getFCvFileFormat()));
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể tải file", e);
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.FeedbackReplyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.FeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -185,6 +186,49 @@ public class FeedbackController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> deleteFeedback(@PathVariable Long feedbackId) {
         Response response = feedbackService.deleteFeedback(feedbackId);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    // ===== REPLY TO FEEDBACK =====
+    @Operation(
+            summary = "Phản hồi feedback của người dùng",
+            description = "Admin trả lời phản hồi của người dùng qua email và cập nhật trạng thái feedback thành RESOLVED",
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"replyContent\": \"Cảm ơn bạn đã phản hồi. Vấn đề của bạn đã được xử lý.\"\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            responses = @ApiResponse(
+                    responseCode = "200",
+                    description = "Phản hồi thành công",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"status\": 200,\n" +
+                                            "  \"message\": \"Phản hồi feedback thành công\",\n" +
+                                            "  \"feed\": {\n" +
+                                            "    \"feedbackId\": 1,\n" +
+                                            "    \"status\": \"RESOLVED\"\n" +
+                                            "  }\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/{feedbackId}/reply")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Response> replyToFeedback(
+            @PathVariable Long feedbackId,
+            @org.springframework.web.bind.annotation.RequestBody FeedbackReplyRequest request
+    ) {
+        Response response = feedbackService.replyToFeedback(feedbackId, request.getReplyContent());
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

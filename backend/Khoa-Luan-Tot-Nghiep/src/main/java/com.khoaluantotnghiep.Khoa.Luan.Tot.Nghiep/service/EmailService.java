@@ -107,5 +107,28 @@ public class EmailService {
             throw new RuntimeException("Gửi thư mời phỏng vấn thất bại", e);
         }
     }
+    public void sendFeedbackReplyEmail(String to, String replyContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Phản hồi của bạn đã được xử lý");
+
+            // Bạn có thể dùng template hoặc gửi trực tiếp
+            String template = loadTemplate("feedback-reply-email-template.html");
+
+            String htmlContent = template
+                    .replace("${replyContent}", replyContent)
+                    .replace("${year}", String.valueOf(Year.now().getValue()));
+
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Gửi email phản hồi thất bại", e);
+        }
+    }
 }

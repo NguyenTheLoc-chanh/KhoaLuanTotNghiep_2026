@@ -4,13 +4,11 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Candidate;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Feedback;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.SampleCV;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.FeedbackStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.CandidateRepo;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.EmployeeRepo;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.FeedbackRepo;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final EmployeeRepo employeeRepo;
     private final FeedbackRepo feedbackRepo;
     private final JobPostingRepo jobPostingRepo;
+    private final SampleCVRepo sampleCVRepo;
 
     @Override
     public Response candidateStatistics() {
@@ -104,6 +103,22 @@ public class StatisticsServiceImpl implements StatisticsService {
                         "pendingCount", pendingCount,
                         "lockedCount", lockedCount,
                         "expiredCount", expiredCount
+                ))
+                .build();
+    }
+
+    @Override
+    public Response sampleCVStatistics() {
+        List<SampleCV> sampleCVs = sampleCVRepo.findAll();
+        if (sampleCVs.isEmpty()) {
+            throw new ResourceNotFoundException("Không có mẫu CV nào");
+        }
+        int totalSampleCVs = sampleCVs.size();
+        return Response.builder()
+                .status(200)
+                .message("Thống kê mẫu CV thành công")
+                .statistics(Map.of(
+                        "totalSampleCVs", totalSampleCVs
                 ))
                 .build();
     }

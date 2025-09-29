@@ -9,4 +9,5 @@ public interface FeedbackService {
     Response getFeedbackById(Long feedbackId);
     Response updateFeedbackStatus(Long feedbackId, String status);
     Response deleteFeedback(Long feedbackId);
+    Response replyToFeedback(Long feedbackId, String replyContent);
 }
