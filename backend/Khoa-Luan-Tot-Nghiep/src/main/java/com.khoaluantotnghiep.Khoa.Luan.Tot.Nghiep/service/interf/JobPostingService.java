@@ -9,7 +9,8 @@ public interface JobPostingService {
     Response getJobPostingById(Long id);
     Response updateJobPosting(Long id, JobPostingDto jobPostingDto);
     Response deleteJobPosting(Long id);
-    Response searchJobPostings(String keyword, int page, int size);
+    Response searchJobPostings(String keyword, int page, int size, String location);
+    Response fileterJobPostingsTheBetter(String location, int page, int size);
     Response filterJobPostings(String location, String jobType, int page, int size);
     Response getJobPostingsByCompany(Long employeeId, int page, int size);
     Response approveJobPosting(Long id);

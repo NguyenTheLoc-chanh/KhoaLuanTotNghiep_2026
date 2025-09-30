@@ -55,7 +55,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     public Response getAllFeedbacks(int page, int size) {
         if (page < 0) page = 0;
         if (size <= 0) size = 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("feedbackId").descending());
         Page<Feedback> feedbackPage = feedbackRepo.findAll(pageable);
 
         List<FeedbackDto> feedbackDtos = feedbackPage.getContent().stream()
