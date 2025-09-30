@@ -151,23 +151,23 @@ public class JobPostingController {
 
     // ===== SEARCH =====
     @Operation(
-            summary = "Tìm kiếm Job Posting theo title keyword",
+            summary = "Tìm kiếm Job Posting theo keyword, location",
+            description = "Cho phép tìm kiếm tin tuyển dụng theo tiêu đề, tên công ty, địa điểm, có phân trang",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Danh sách job postings",
                             content = @Content(
+                                    mediaType = "application/json",
                                     examples = @ExampleObject(
                                             value = "{\n" +
                                                     "  \"status\": 200,\n" +
-                                                    "  \"message\": \"Search completed successfully\",\n" +
+                                                    "  \"message\": \"Tìm kiếm thành công!\",\n" +
                                                     "  \"jobPostingDtoList\": [\n" +
                                                     "    {\n" +
                                                     "      \"id\": 1,\n" +
                                                     "      \"title\": \"Java Backend Developer\",\n" +
                                                     "      \"address\": \"Hà Nội\",\n" +
-                                                    "      \"jobField\": \"Software Engineering\",\n" +
-                                                    "      \"salary\": \"1200-1500 USD\"\n" +
                                                     "    }\n" +
                                                     "  ],\n" +
                                                     "  \"currentPage\": 0,\n" +
@@ -181,13 +181,15 @@ public class JobPostingController {
     )
     @GetMapping("/search")
     public ResponseEntity<Response> searchJobPostings(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Response response = jobPostingService.searchJobPostings(keyword, page, size);
+        Response response = jobPostingService.searchJobPostings(keyword, page, size, location);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
 
     // ===== FILTER =====
     @Operation(
@@ -227,6 +229,45 @@ public class JobPostingController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Response response = jobPostingService.filterJobPostings(location, jobType, page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    // ===== FILTER THE BETTER =====
+    @Operation(
+            summary = "Lọc Job Posting theo địa chỉ (the better)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Danh sách job postings",
+                            content = @Content(
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Filter completed successfully\",\n" +
+                                                    "  \"jobPostingDtoList\": [\n" +
+                                                    "    {\n" +
+                                                    "      \"id\": 2,\n" +
+                                                    "      \"title\": \"Frontend Developer\",\n" +
+                                                    "      \"address\": \"Đà Nẵng\",\n" +
+                                                    "      \"jobField\": \"Web Development\",\n" +
+                                                    "      \"salary\": \"800-1200 USD\"\n" +
+                                                    "    }\n" +
+                                                    "  ],\n" +
+                                                    "  \"currentPage\": 0,\n" +
+                                                    "  \"totalItems\": 1,\n" +
+                                                    "  \"totalPages\": 1\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/filter-the-better")
+    public ResponseEntity<Response> filterJobPostingsTheBetter(
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Response response = jobPostingService.fileterJobPostingsTheBetter(location, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

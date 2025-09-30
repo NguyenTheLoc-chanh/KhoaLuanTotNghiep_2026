@@ -13,11 +13,13 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobPostingService;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.specification.JobPostingSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -182,12 +184,31 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public Response searchJobPostings(String keyword, int page, int size) {
+    public Response searchJobPostings(String keyword, int page, int size, String location) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<JobPosting> postings = jobPostingRepo.findByTitleContainingIgnoreCase(keyword, pageable);
 
-        if (postings.getContent().isEmpty()) {
-            throw new ResourceNotFoundException("No job postings found matching the keyword: " + keyword);
+        Specification<JobPosting> spec = (root, query, cb) -> cb.conjunction();
+
+        // Trạng thái ACTIVE
+        spec = spec.and(JobPostingSpecification.isActive());
+
+        // Tìm theo tiêu đề công việc
+        if (keyword != null && !keyword.isBlank()) {
+            spec = spec.and(Specification.anyOf(
+                    JobPostingSpecification.hasTitle(keyword),
+                    JobPostingSpecification.hasCompanyName(keyword)
+            ));
+        }
+
+        // Tìm theo địa điểm
+        if (location != null && !location.isBlank()) {
+            spec = spec.and(JobPostingSpecification.hasAddress(location));
+        }
+
+        Page<JobPosting> postings = jobPostingRepo.findAll(spec, pageable);
+
+        if (postings.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy tin tuyển dụng phù hợp");
         }
         List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
                 .map(jobPostingMapper::toDto)
@@ -195,7 +216,41 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         return Response.builder()
                 .status(200)
-                .message("Search completed successfully")
+                .message("Tìm kiếm thành công!")
+                .jobPostingDtoList(jobPostingDtos)
+                .currentPage(postings.getNumber())
+                .totalItems(postings.getTotalElements())
+                .totalPages(postings.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public Response fileterJobPostingsTheBetter(String location, int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Order.desc("salaryMax"), Sort.Order.desc("createdAt")) // Ưu tiên lương cao, sau đó là mới nhất
+        );
+
+        Specification<JobPosting> spec = JobPostingSpecification.isActive();
+
+        if (location != null && !location.isBlank()) {
+            spec = spec.and(JobPostingSpecification.hasAddress(location));
+        }
+
+        Page<JobPosting> postings = jobPostingRepo.findAll(spec, pageable);
+
+        if (postings.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy việc làm phù hợp tại " + location);
+        }
+
+        List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
+                .map(jobPostingMapper::toDto)
+                .toList();
+
+        return Response.builder()
+                .status(200)
+                .message("Lọc việc làm thành công!")
                 .jobPostingDtoList(jobPostingDtos)
                 .currentPage(postings.getNumber())
                 .totalItems(postings.getTotalElements())

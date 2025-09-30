@@ -49,6 +49,11 @@ public class JobPosting {
     @JoinColumn(name = "employeeId")
     private Employee employee;
 
+    @ManyToOne
+    @JoinColumn(name = "jobCategoryId")
+    private JobCategory jobCategory;
+
+
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL)
     private List<JobApplication> jobApplications;
 
