@@ -2,6 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobPostingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -69,8 +71,11 @@ public class JobPostingController {
     )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('EMPLOYER')")
-    public ResponseEntity<Response> createJobPosting(@Valid @RequestBody JobPostingDto dto) {
-        Response response = jobPostingService.createJobPosting(dto);
+    public ResponseEntity<Response> createJobPosting(
+            @AuthenticationPrincipal UserAuth userAuth,
+            @Valid @RequestBody JobPostingDto dto
+    ) {
+        Response response = jobPostingService.createJobPosting(userAuth.getUserId(),dto);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
@@ -430,4 +435,5 @@ public class JobPostingController {
         Response response = jobPostingService.getJobPostingByShareToken(token);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
 }

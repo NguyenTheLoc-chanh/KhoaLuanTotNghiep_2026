@@ -30,6 +30,7 @@ public class Response {
     private String shareLinkCV;
 
     private Map<String, Object> statistics;
+    private List<JobCategoryStatsDto> jobCategoryStats;
 
     private UserDto userDto;
     private List<UserDto> userDtoList;

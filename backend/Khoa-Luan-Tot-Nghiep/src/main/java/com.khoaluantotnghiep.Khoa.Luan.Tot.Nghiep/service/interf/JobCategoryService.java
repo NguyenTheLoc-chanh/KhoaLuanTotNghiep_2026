@@ -9,4 +9,5 @@ public interface JobCategoryService {
     Response getJobCategoryById(Long jobCategoryId);
     Response updateJobCategory(Long jobCategoryId, JobCategoryRequest request);
     Response deleteJobCategory(Long jobCategoryId);
+    Response getJobCategoryStats();
 }

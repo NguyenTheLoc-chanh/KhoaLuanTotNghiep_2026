@@ -35,4 +35,5 @@ public class JobPostingDto {
     private LocalDateTime updatedAt;
 
     private EmployeeDto employee;
+    private JobCategoryDto jobCategory;
 }

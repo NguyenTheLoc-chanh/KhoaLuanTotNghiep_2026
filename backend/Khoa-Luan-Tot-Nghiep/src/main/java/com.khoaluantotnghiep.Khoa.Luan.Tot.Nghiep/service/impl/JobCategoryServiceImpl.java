@@ -1,6 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobCategoryDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobCategoryStatsDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.JobCategoryRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobCategory;
@@ -107,6 +108,21 @@ public class JobCategoryServiceImpl implements JobCategoryService {
         return Response.builder()
                 .status(200)
                 .message("Xóa danh mục công việc thành công")
+                .build();
+    }
+
+    @Override
+    public Response getJobCategoryStats() {
+        List<JobCategoryStatsDto> stats = jobCategoryRepo.getJobCategoryStats();
+
+        if (stats.isEmpty()) {
+            throw new ResourceNotFoundException("Không có dữ liệu thống kê danh mục công việc");
+        }
+
+        return Response.builder()
+                .status(200)
+                .message("Thống kê danh mục công việc thành công")
+                .jobCategoryStats(stats)
                 .build();
     }
 }
