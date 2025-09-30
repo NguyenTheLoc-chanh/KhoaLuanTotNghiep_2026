@@ -180,4 +180,33 @@ public class JobCategoryController {
         Response response = jobCategoryService.deleteJobCategory(jobCategoryId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+    // ===== STATS =====
+    @Operation(
+            summary = "Thống kê số lượng tin tuyển dụng theo danh mục ngành nghề",
+            responses = @ApiResponse(
+                    responseCode = "200",
+                    description = "Thống kê thành công",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"status\": 200,\n" +
+                                            "  \"message\": \"Thống kê danh mục công việc thành công\",\n" +
+                                            "  \"jobCategoryStats\": [\n" +
+                                            "    {\n" +
+                                            "      \"categoryName\": \"CNTT\",\n" +
+                                            "      \"jobCount\": 15\n" +
+                                            "    }\n" +
+                                            "  ]\n" +"}"
+                            )
+                    )
+            ),
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/stats")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response> getJobCategoryStats() {
+        Response response = jobCategoryService.getJobCategoryStats();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

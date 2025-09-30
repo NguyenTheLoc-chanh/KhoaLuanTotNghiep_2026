@@ -3,12 +3,14 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobCategory;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.BadRequestException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobPostingMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.EmployeeRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobCategoryRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
@@ -25,13 +27,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepo jobPostingRepo;
+    private final JobCategoryRepo jobCategoryRepo;
     private final EmployeeRepo employeeRepo;
     private final JobPostingMapper jobPostingMapper;
     private final JwtUtils jwtUtils;
@@ -46,7 +48,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
     }
 
-    private JobPosting buildJobPosting(JobPostingDto dto, Employee employee) {
+    private JobPosting buildJobPosting(JobPostingDto dto, Employee employee, JobCategory jobCategory) {
         JobPosting jobPosting = new JobPosting();
         jobPosting.setTitle(dto.getTitle());
         jobPosting.setJobField(dto.getJobField());
@@ -61,6 +63,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         jobPosting.setDescription(dto.getDescription());
         jobPosting.setStatus(JobPostingStatus.PENDING);
         jobPosting.setEmployee(employee);
+        jobPosting.setJobCategory(jobCategory);
         return jobPosting;
     }
     @Scheduled(cron = "0 0 0 * * ?")
@@ -80,12 +83,15 @@ public class JobPostingServiceImpl implements JobPostingService {
 
 
     @Override
-    public Response createJobPosting(JobPostingDto jobPostingDto) {
+    public Response createJobPosting(Long userId,JobPostingDto jobPostingDto) {
         validateJobPostingDto(jobPostingDto);
-        Employee employee = employeeRepo.findById(jobPostingDto.getEmployee().getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + jobPostingDto.getEmployee().getEmployeeId()));
+        Employee employee = employeeRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + userId));
 
-        JobPosting jobPosting = buildJobPosting(jobPostingDto, employee);
+        JobCategory jobCategory = jobCategoryRepo.findById(jobPostingDto.getJobCategory().getJobCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Job category not found with id " + jobPostingDto.getJobCategory().getJobCategoryId()));
+
+        JobPosting jobPosting = buildJobPosting(jobPostingDto, employee, jobCategory);
         JobPosting saved = jobPostingRepo.save(jobPosting);
         JobPostingDto savedDto = jobPostingMapper.toDto(saved);
 

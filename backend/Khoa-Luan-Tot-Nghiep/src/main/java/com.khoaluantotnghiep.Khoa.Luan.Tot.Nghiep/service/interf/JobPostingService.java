@@ -4,7 +4,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 
 public interface JobPostingService {
-    Response createJobPosting(JobPostingDto jobPostingDto);
+    Response createJobPosting(Long userId,JobPostingDto jobPostingDto);
     Response getAllJobPostings(int page, int size);
     Response getJobPostingById(Long id);
     Response updateJobPosting(Long id, JobPostingDto jobPostingDto);
