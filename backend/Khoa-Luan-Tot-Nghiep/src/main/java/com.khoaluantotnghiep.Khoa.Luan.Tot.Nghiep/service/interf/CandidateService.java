@@ -1,7 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import org.springframework.web.multipart.MultipartFile;
 

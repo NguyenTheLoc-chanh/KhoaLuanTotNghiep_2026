@@ -1,7 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateRegisterRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.RegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.CandidateRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.RegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.UserDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;

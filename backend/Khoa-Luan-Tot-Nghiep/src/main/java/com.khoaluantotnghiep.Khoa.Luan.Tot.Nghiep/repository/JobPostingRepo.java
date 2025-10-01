@@ -2,6 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,12 @@ import java.util.List;
 public interface JobPostingRepo extends JpaRepository<JobPosting,Long>, JpaSpecificationExecutor<JobPosting> {
     // Tìm theo tiêu đề (không phân biệt hoa thường, chứa keyword)
     Page<JobPosting> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
+    Page<JobPosting> findByEmployeeAndStatus(Employee employee, JobPostingStatus status, Pageable pageable);
+
+    Page<JobPosting> findByJobCategory_JobCategoryIdAndStatus(Long jobCategoryId, JobPostingStatus status, Pageable pageable);
+
+    Page<JobPosting> findByAddressContainingIgnoreCase(String address, Pageable pageable);
 
     // Tìm theo địa chỉ và lĩnh vực công việc (cả 2 đều chứa, không phân biệt hoa thường)
     Page<JobPosting> findByAddressContainingIgnoreCaseAndJobFieldContainingIgnoreCase(String address, String jobField, Pageable pageable);

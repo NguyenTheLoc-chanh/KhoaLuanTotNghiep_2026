@@ -209,4 +209,46 @@ public class JobCategoryController {
         Response response = jobCategoryService.getJobCategoryStats();
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    // ===== GET JOBS BY CATEGORY =====
+    @Operation(
+            summary = "Lấy danh sách tin tuyển dụng theo danh mục (chỉ ACTIVE)",
+            description = "Lấy tất cả các tin tuyển dụng có trạng thái ACTIVE trong danh mục theo ID, có phân trang.",
+            responses = @ApiResponse(
+                    responseCode = "200",
+                    description = "Danh sách việc làm",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"status\": 200,\n" +
+                                            "  \"message\": \"Lấy danh sách việc làm theo danh mục thành công\",\n" +
+                                            "  \"jobPostingDtoList\": [\n" +
+                                            "    {\n" +
+                                            "      \"jobId\": 1,\n" +
+                                            "      \"title\": \"Java Developer\",\n" +
+                                            "      \"salaryMin\": 1000,\n" +
+                                            "      \"salaryMax\": 2000,\n" +
+                                            "      \"status\": \"ACTIVE\"\n" +
+                                            "    }\n" +
+                                            "  ],\n" +
+                                            "  \"currentPage\": 0,\n" +
+                                            "  \"totalItems\": 1,\n" +
+                                            "  \"totalPages\": 1\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/{jobCategoryId}/jobs")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Response> getJobPostingsByCategory(
+            @PathVariable Long jobCategoryId,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) int size
+    ) {
+        Response response = jobCategoryService.getAllJobPostingsByCategoryId(jobCategoryId, page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

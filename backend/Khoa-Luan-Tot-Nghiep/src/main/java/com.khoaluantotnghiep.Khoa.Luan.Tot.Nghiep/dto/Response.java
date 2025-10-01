@@ -44,6 +44,9 @@ public class Response {
     private JobPostingDto jobPostingDto;
     private List<JobPostingDto> jobPostingDtoList;
 
+    private AppliedJobDto appliedJobDto;
+    private List<AppliedJobDto> appliedJobDtoList;
+
     private JobCategoryDto jobCategoryDto;
     private List<JobCategoryDto> jobCategoryDtoList;
 

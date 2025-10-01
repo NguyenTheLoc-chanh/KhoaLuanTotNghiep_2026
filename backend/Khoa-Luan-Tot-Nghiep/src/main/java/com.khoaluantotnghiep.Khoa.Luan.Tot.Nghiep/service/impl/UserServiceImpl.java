@@ -1,6 +1,10 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.*;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.AdminRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.CandidateRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployerRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.RegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.RoleUser;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ConflictException;

@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request;
 
 import jakarta.annotation.Nullable;
 import lombok.Data;
@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class EmployerRegisterRequest  extends RegisterRequest{
+public class EmployerRegisterRequest  extends RegisterRequest {
     @Nullable
     private MultipartFile businessLicense;
 }

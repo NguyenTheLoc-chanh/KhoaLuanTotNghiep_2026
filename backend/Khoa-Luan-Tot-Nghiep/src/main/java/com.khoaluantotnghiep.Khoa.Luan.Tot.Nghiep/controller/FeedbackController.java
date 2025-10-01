@@ -1,6 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.FeedbackRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.FeedbackReplyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
@@ -231,4 +231,47 @@ public class FeedbackController {
         Response response = feedbackService.replyToFeedback(feedbackId, request.getReplyContent());
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    // ===== GET FEEDBACKS BY USER ID (PAGINATED) =====
+    @Operation(
+            summary = "Lấy danh sách feedback của 1 user (có phân trang)",
+            description = "User xem danh sách feedback của chính mình",
+            responses = @ApiResponse(
+                    responseCode = "200",
+                    description = "Danh sách feedback theo userId",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\n" +
+                                            "  \"status\": 200,\n" +
+                                            "  \"message\": \"Lấy danh sách feedback thành công\",\n" +
+                                            "  \"feedbackDtoList\": [\n" +
+                                            "    {\n" +
+                                            "      \"feedbackId\": 1,\n" +
+                                            "      \"title\": \"Ứng dụng bị lỗi login\",\n" +
+                                            "      \"description\": \"Nhập mật khẩu đúng nhưng báo sai\",\n" +
+                                            "      \"status\": \"PENDING\",\n" +
+                                            "      \"userId\": 5\n" +
+                                            "    }\n" +
+                                            "  ],\n" +
+                                            "  \"currentPage\": 0,\n" +
+                                            "  \"totalItems\": 1,\n" +
+                                            "  \"totalPages\": 1\n" +
+                                            "}"
+                            )
+                    )
+            ),
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYER','CANDIDATE')")
+    public ResponseEntity<Response> getAllFeedbacksByUserId(
+            @AuthenticationPrincipal UserAuth userAuth,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) int size
+    ) {
+        Response response = feedbackService.getAllFeedbacksByUserId(userAuth.getUserId(), page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
 }

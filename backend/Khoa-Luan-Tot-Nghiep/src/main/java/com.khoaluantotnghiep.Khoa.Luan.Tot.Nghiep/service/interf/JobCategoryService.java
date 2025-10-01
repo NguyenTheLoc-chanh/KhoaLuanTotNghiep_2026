@@ -10,4 +10,5 @@ public interface JobCategoryService {
     Response updateJobCategory(Long jobCategoryId, JobCategoryRequest request);
     Response deleteJobCategory(Long jobCategoryId);
     Response getJobCategoryStats();
+    Response getAllJobPostingsByCategoryId(Long categoryId, int page, int size);
 }

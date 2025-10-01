@@ -1,6 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.FeedbackRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 
 public interface FeedbackService {
@@ -10,4 +10,5 @@ public interface FeedbackService {
     Response updateFeedbackStatus(Long feedbackId, String status);
     Response deleteFeedback(Long feedbackId);
     Response replyToFeedback(Long feedbackId, String replyContent);
+    Response getAllFeedbacksByUserId(Long userId, int page, int size);
 }

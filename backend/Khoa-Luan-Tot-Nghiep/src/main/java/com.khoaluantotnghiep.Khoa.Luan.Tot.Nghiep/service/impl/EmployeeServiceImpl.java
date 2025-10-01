@@ -1,13 +1,18 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeInfoCompanyRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployeeInfoCompanyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.EmployeeMapper;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobPostingMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.EmployeeRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.UserRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.CloudinaryService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.EmployeeService;
@@ -20,13 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepo employeeRepo;
+    private final JobPostingRepo jobPostingRepo;
+    private final JobPostingMapper jobPostingMapper;
     private final UserRepo userRepo;
     private final EmployeeMapper employeeMapper;
     private final CloudinaryService cloudinaryService;
@@ -180,6 +186,42 @@ public class EmployeeServiceImpl implements EmployeeService {
         return Response.builder()
                 .status(200)
                 .message("Employee deleted successfully")
+                .build();
+    }
+
+    @Override
+    public Response getJobPostingsByEmployeeId_Status(Long userId, int page, int size, String status) {
+        Employee employee = employeeRepo.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy nhà tuyển dụng! "));
+        if (employee == null) {
+            throw new ResourceNotFoundException("Không tìm thấy nhà tuyển dụng!");
+        }
+
+        JobPostingStatus jobStatus;
+        try {
+            jobStatus = JobPostingStatus.valueOf(status.toUpperCase()); // convert String -> Enum
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Trạng thái không hợp lệ: " + status);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<JobPosting> jobPostingsPage = jobPostingRepo.findByEmployeeAndStatus(employee, jobStatus, pageable);
+
+        if (jobPostingsPage.isEmpty()) {
+            throw new ResourceNotFoundException("Không có tin tuyển dụng nào với trạng thái: " + status);
+        }
+
+        List<JobPostingDto> jobPostings = jobPostingsPage.getContent()
+                .stream()
+                .map(jobPostingMapper::toDto)
+                .toList();
+        return Response.builder()
+                .status(200)
+                .message("Lấy tin tuyển dụng theo trạng thái thành công!")
+                .jobPostingDtoList(jobPostings)
+                .currentPage(jobPostingsPage.getNumber())
+                .totalItems(jobPostingsPage.getTotalElements())
+                .totalPages(jobPostingsPage.getTotalPages())
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.AdminRegisterRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateRegisterRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployerRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.AdminRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.CandidateRegisterRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployerRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.UserService;
 import io.swagger.v3.oas.annotations.Operation;

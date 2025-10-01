@@ -1,6 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,7 +31,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công",
                             content = @Content(schema = @Schema(implementation = Response.class))),
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -49,7 +52,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lấy thành công"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -65,7 +69,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Duyệt thành công"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -81,7 +86,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Từ chối thành công"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -98,7 +104,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lọc thành công"),
                     @ApiResponse(responseCode = "400", description = "Trạng thái không hợp lệ")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/filter")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -119,7 +126,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển cho jobId này")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/job/{jobId}")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -140,7 +148,8 @@ public class JobApplicationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Gửi thư thành công"),
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy ứng tuyển")
-            }
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @PostMapping("/{id}/send-interview-letter")
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -152,4 +161,26 @@ public class JobApplicationController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @Operation(
+            summary = "Lấy danh sách công việc đã ứng tuyển theo userId",
+            description = "Ứng viên xem lại các công việc mình đã ứng tuyển. Có hỗ trợ phân trang và sắp xếp.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công",
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(responseCode = "404", description = "Không tìm thấy Candidate hoặc chưa ứng tuyển công việc nào")
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/user/jobs")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ResponseEntity<Response> getAllJobsAppliedByUserId(
+            @AuthenticationPrincipal UserAuth userAuth,
+            @Parameter(description = "Số trang (mặc định 0)")@RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Kích thước trang (mặc định 10)") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Trường sort (mặc định appliedAt)") @RequestParam(defaultValue = "appliedAt") String sortBy,
+            @Parameter(description = "Hướng sort (asc/desc)") @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Response response = jobApplicationService.getAllJobApplicationsByUserId(userAuth.getUserId(), page, size, sortBy, sortDir);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

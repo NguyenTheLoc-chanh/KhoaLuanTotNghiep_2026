@@ -2,7 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.GoogleLoginRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.GoogleLoginRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Candidate;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;

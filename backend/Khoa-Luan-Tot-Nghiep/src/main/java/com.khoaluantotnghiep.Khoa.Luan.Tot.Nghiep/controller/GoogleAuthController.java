@@ -1,6 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.GoogleLoginRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.GoogleLoginRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.GoogleAuthService;
 import io.swagger.v3.oas.annotations.Operation;
