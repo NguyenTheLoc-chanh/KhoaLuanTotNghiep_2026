@@ -1,7 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeInfoCompanyRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployeeInfoCompanyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.EmployeeService;
@@ -79,7 +79,7 @@ public class EmployeeController {
 
     @Operation(summary = "Lấy thông tin Employer theo userId", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYER')")
+    @PreAuthorize("hasAnyRole('CANDIDATE','EMPLOYER','ADMIN')")
     public ResponseEntity<Response> getEmployeeByUserId(@PathVariable Long userId) {
         Response response = employeeService.getEmployeeByUserId(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
@@ -87,7 +87,7 @@ public class EmployeeController {
 
     @Operation(summary = "Lấy danh sách Employer (phân trang + search)", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('CANDIDATE','EMPLOYER','ADMIN')")
     public ResponseEntity<Response> getAllEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -103,6 +103,19 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> deleteEmployee(@PathVariable Long userId) {
         Response response = employeeService.deleteEmployee(userId);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @Operation(summary = "Lấy danh sách Job Posting của Employer theo trạng thái (phân trang)", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/job-postings")
+    @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
+    public ResponseEntity<Response> getJobPostingsByEmployeeId_Status(
+            @AuthenticationPrincipal UserAuth userAuth,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String status) {
+        Long userId = userAuth.getUserId();
+        Response response = employeeService.getJobPostingsByEmployeeId_Status(userId, page, size, status);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

@@ -436,4 +436,95 @@ public class JobPostingController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    // ===== GET BY ADDRESS =====
+    @Operation(
+            summary = "Lấy danh sách tin tuyển dụng theo địa chỉ",
+            description = "Lấy danh sách job postings theo địa chỉ (phân trang, mặc định sort mới nhất)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Danh sách job postings",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Lấy danh sách tin tuyển dụng theo địa chỉ thành công\",\n" +
+                                                    "  \"jobPostingDtoList\": [\n" +
+                                                    "    {\n" +
+                                                    "      \"id\": 5,\n" +
+                                                    "      \"title\": \"Java Backend Developer\",\n" +
+                                                    "      \"address\": \"Hà Nội\",\n" +
+                                                    "      \"jobField\": \"Software Engineering\",\n" +
+                                                    "      \"salary\": \"1200-1500 USD\",\n" +
+                                                    "      \"createdAt\": \"2025-09-22T08:00:00\"\n" +
+                                                    "    }\n" +
+                                                    "  ],\n" +
+                                                    "  \"currentPage\": 0,\n" +
+                                                    "  \"totalItems\": 1,\n" +
+                                                    "  \"totalPages\": 1\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/by-address")
+    public ResponseEntity<Response> getJobPostingsByAddress(
+            @RequestParam(required = false) String address,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Response response = jobPostingService.getJobPostingsByAddress(address, page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    // ===== GET CANDIDATES FOR JOB POSTING =====
+    @Operation(
+            summary = "Lấy danh sách ứng viên cho một Job Posting",
+            description = "Trả về danh sách ứng viên ứng tuyển vào một tin tuyển dụng, có hỗ trợ phân trang, lọc theo status, sắp xếp theo ngày mới nhất/cũ nhất",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Danh sách ứng viên",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = "{\n" +
+                                                    "  \"status\": 200,\n" +
+                                                    "  \"message\": \"Lấy danh sách ứng viên ứng tuyển thành công\",\n" +
+                                                    "  \"jobApplicationDtoList\": [\n" +
+                                                    "    {\n" +
+                                                    "      \"id\": 10,\n" +
+                                                    "      \"candidate\": {\n" +
+                                                    "        \"id\": 5,\n" +
+                                                    "        \"fullName\": \"Nguyễn Văn A\",\n" +
+                                                    "        \"email\": \"a@example.com\",\n" +
+                                                    "        \"phone\": \"0123456789\"\n" +
+                                                    "      },\n" +
+                                                    "      \"status\": \"APPLIED\",\n" +
+                                                    "      \"appliedAt\": \"2025-09-24T10:00:00\"\n" +
+                                                    "    }\n" +
+                                                    "  ],\n" +
+                                                    "  \"currentPage\": 0,\n" +
+                                                    "  \"totalItems\": 1,\n" +
+                                                    "  \"totalPages\": 1\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/{jobId}/candidates")
+    @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
+    public ResponseEntity<Response> getCandidatesForJobPosting(
+            @PathVariable Long jobId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) String status
+    ) {
+        Response response = jobPostingService.getCandidatesForJobPosting(jobId, page, size, sortDir, status);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

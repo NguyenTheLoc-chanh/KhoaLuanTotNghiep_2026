@@ -1,6 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.GoogleLoginRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.GoogleLoginRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 

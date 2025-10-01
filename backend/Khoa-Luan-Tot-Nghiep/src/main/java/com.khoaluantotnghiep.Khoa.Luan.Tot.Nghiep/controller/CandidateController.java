@@ -1,9 +1,8 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.CandidateService;

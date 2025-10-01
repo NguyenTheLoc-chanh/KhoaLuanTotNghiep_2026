@@ -2,7 +2,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Candidate;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

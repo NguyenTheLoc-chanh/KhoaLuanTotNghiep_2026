@@ -1,12 +1,17 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.AppliedJobDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Candidate;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobApplicationStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.BadRequestException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobApplicationMapper;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobPostingMapper;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.CandidateRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobApplicationRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobApplicationService;
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 public class JobApplicationServiceImpl implements JobApplicationService {
 
     private final JobApplicationRepo jobApplicationRepo;
+    private final CandidateRepo candidateRepo;
+    private final JobPostingMapper jobPostingMapper;
     private final JobApplicationMapper jobApplicationMapper;
     private final EmailService emailService;
 
@@ -167,6 +174,34 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         return Response.builder()
                 .status(200)
                 .message("Gửi thư mời phỏng vấn thành công tới " + candidateEmail)
+                .build();
+    }
+
+    @Override
+    public Response getAllJobApplicationsByUserId(Long userId, int page, int size, String sortBy, String sortDir) {
+        Candidate candidate = candidateRepo.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Candidate với userId = " + userId));
+
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<JobApplication> jobApps = jobApplicationRepo.findByCandidate_CandidateId(candidate.getCandidateId(), pageable);
+
+        if (jobApps.isEmpty()) {
+            throw new ResourceNotFoundException("Ứng viên chưa ứng tuyển công việc nào");
+        }
+        List<AppliedJobDto> jobDtoList = jobApps.getContent()
+                .stream()
+                .map(jobPostingMapper::toAppliedJobDto)
+                .toList();
+        return Response.builder()
+                .status(200)
+                .message("Lấy danh sách công việc đã ứng tuyển thành công")
+                .appliedJobDtoList(jobDtoList)
+                .currentPage(jobApps.getNumber())
+                .totalItems(jobApps.getTotalElements())
+                .totalPages(jobApps.getTotalPages())
                 .build();
     }
 }

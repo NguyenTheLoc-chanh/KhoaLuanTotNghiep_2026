@@ -1,15 +1,20 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobCategory;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobApplicationStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.BadRequestException;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.exception.ResourceNotFoundException;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobApplicationMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper.JobPostingMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.EmployeeRepo;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobApplicationRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobCategoryRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.repository.JobPostingRepo;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.JwtUtils;
@@ -34,8 +39,10 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepo jobPostingRepo;
     private final JobCategoryRepo jobCategoryRepo;
+    private final JobApplicationRepo jobApplicationRepo;
     private final EmployeeRepo employeeRepo;
     private final JobPostingMapper jobPostingMapper;
+    private final JobApplicationMapper jobApplicationMapper;
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
 
@@ -388,4 +395,82 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .jobPostingDto(postingDto)
                 .build();
     }
+
+    @Override
+    public Response getJobPostingsByAddress(String address, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<JobPosting> postings;
+
+        if (address != null && !address.isBlank()) {
+            postings = jobPostingRepo.findByAddressContainingIgnoreCase(address, pageable);
+        } else {
+            postings = jobPostingRepo.findAll(pageable);
+        }
+
+        if (postings.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    address != null && !address.isBlank()
+                            ? "Không tìm thấy tin tuyển dụng tại địa chỉ: " + address
+                            : "Không tìm thấy tin tuyển dụng nào"
+            );
+        }
+
+        List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
+                .map(this::checkAndUpdateExpiration) // kiểm tra hết hạn
+                .map(jobPostingMapper::toDto)
+                .toList();
+
+        return Response.builder()
+                .status(200)
+                .message("Lấy danh sách tin tuyển dụng theo địa chỉ thành công")
+                .jobPostingDtoList(jobPostingDtos)
+                .currentPage(postings.getNumber())
+                .totalItems(postings.getTotalElements())
+                .totalPages(postings.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public Response getCandidatesForJobPosting(Long jobId, int page, int size, String sortDir, String status) {
+        JobPosting posting = jobPostingRepo.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tin tuyển dụng không tồn tại với id: " + jobId));
+
+        Sort sort = sortDir != null && sortDir.equalsIgnoreCase("asc")
+                ? Sort.by("appliedAt").ascending()
+                : Sort.by("appliedAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<JobApplication> applicationsPage;
+        if (status != null && !status.isEmpty()) {
+            JobApplicationStatus appStatus;
+            try {
+                appStatus = JobApplicationStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ResourceNotFoundException("Invalid status: " + status);
+            }
+            applicationsPage = jobApplicationRepo.findByJobPostingAndStatus(posting, appStatus, pageable);
+        } else {
+            applicationsPage = jobApplicationRepo.findByJobPosting(posting, pageable);
+        }
+
+        if (applicationsPage.isEmpty()) {
+            throw new ResourceNotFoundException("Không có ứng viên nào ứng tuyển cho tin tuyển dụng này");
+        }
+        List<JobApplicationDto> applications = applicationsPage.getContent()
+                .stream()
+                .map(jobApplicationMapper::toDto)
+                .toList();
+
+        return Response.builder()
+                .status(200)
+                .message("Lấy danh sách ứng viên ứng tuyển thành công")
+                .jobApplicationDtoList(applications)
+                .currentPage(applicationsPage.getNumber())
+                .totalItems(applicationsPage.getTotalElements())
+                .totalPages(applicationsPage.getTotalPages())
+                .build();
+    }
+
 }

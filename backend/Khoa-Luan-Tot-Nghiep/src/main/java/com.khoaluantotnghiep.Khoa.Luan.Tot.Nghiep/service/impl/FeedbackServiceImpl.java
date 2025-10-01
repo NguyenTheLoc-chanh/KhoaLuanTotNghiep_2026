@@ -1,9 +1,8 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.FeedbackRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.FeedbackRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.UserDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Feedback;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.FeedbackStatus;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -53,26 +51,9 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public Response getAllFeedbacks(int page, int size) {
-        if (page < 0) page = 0;
-        if (size <= 0) size = 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("feedbackId").descending());
+        Pageable pageable = buildPageable(page, size);
         Page<Feedback> feedbackPage = feedbackRepo.findAll(pageable);
-
-        List<FeedbackDto> feedbackDtos = feedbackPage.getContent().stream()
-                .map(feedbackMapper::toDto)
-                .toList();
-        if (feedbackDtos.isEmpty()) {
-            throw new ResourceNotFoundException("Không có feedback nào");
-        }
-
-        return Response.builder()
-                .status(200)
-                .message("Lấy danh sách feedback thành công")
-                .feedbackDtoList(feedbackDtos)
-                .currentPage(feedbackPage.getNumber())
-                .totalItems(feedbackPage.getTotalElements())
-                .totalPages(feedbackPage.getTotalPages())
-                .build();
+        return buildPagedResponse(feedbackPage);
     }
 
     @Override
@@ -133,6 +114,38 @@ public class FeedbackServiceImpl implements FeedbackService {
         return Response.builder()
                 .status(200)
                 .message("Phản hồi feedback thành công")
+                .build();
+    }
+
+    @Override
+    public Response getAllFeedbacksByUserId(Long userId, int page, int size) {
+        Pageable pageable = buildPageable(page, size);
+        Page<Feedback> feedbackPage = feedbackRepo.findByUser_UserId(userId, pageable);
+        return buildPagedResponse(feedbackPage);
+    }
+
+    private Pageable buildPageable(int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        return PageRequest.of(page, size, Sort.by("feedbackId").descending());
+    }
+
+    private Response buildPagedResponse(Page<Feedback> feedbackPage) {
+        List<FeedbackDto> feedbackDtos = feedbackPage.getContent().stream()
+                .map(feedbackMapper::toDto)
+                .toList();
+
+        if (feedbackDtos.isEmpty()) {
+            throw new ResourceNotFoundException("Không có feedback nào");
+        }
+
+        return Response.builder()
+                .status(200)
+                .message("Lấy danh sách feedback thành công")
+                .feedbackDtoList(feedbackDtos)
+                .currentPage(feedbackPage.getNumber())
+                .totalItems(feedbackPage.getTotalElements())
+                .totalPages(feedbackPage.getTotalPages())
                 .build();
     }
 }
