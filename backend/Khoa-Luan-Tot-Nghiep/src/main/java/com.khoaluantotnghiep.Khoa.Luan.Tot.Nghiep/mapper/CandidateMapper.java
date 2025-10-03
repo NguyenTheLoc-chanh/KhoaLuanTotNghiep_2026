@@ -19,6 +19,9 @@ public class CandidateMapper {
             dto.setUserId(candidate.getUser().getUserId());
             dto.setFullName(candidate.getUser().getFullName());
             dto.setStatus(candidate.getUser().getStatus().toString());
+            dto.setEmail(candidate.getUser().getEmail());
+            dto.setPhone(candidate.getUser().getPhone());
+            dto.setCreatedAt(candidate.getUser().getCreatedAt());
         }
         return dto;
     }

@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -26,4 +27,5 @@ public class EmployeeDto {
     private Long userId;
     private String fullName;
     private String status;
+    private LocalDateTime createdAt;
 }

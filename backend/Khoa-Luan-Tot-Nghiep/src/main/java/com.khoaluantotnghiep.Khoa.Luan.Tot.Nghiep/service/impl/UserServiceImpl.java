@@ -136,4 +136,16 @@ public class UserServiceImpl implements UserService {
                 .totalPages(usersPage.getTotalPages())
                 .build();
     }
+
+    @Override
+    public Response getUserById(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user với ID: " + userId));
+        UserDto userDto = userMapper.toDto(user);
+        return Response.builder()
+                .status(200)
+                .message("Get user by ID successfully")
+                .userDto(userDto)
+                .build();
+    }
 }

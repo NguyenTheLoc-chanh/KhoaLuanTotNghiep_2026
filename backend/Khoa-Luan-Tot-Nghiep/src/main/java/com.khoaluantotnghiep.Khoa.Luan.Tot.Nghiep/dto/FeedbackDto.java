@@ -22,4 +22,5 @@ public class FeedbackDto {
     private LocalDateTime updatedAt;
 
     private Long userId;
+    private String email;
 }

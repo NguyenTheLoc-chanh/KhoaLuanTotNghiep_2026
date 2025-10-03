@@ -14,4 +14,5 @@ public interface UserService {
     Response registerEmployer(EmployerRegisterRequest registrationRequest );
     Response registerAdmin(AdminRegisterRequest registrationRequest );
     Response getAllUsers(int page, int size);
+    Response getUserById(Long userId);
 }
