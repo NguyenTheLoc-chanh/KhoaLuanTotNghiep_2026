@@ -19,6 +19,7 @@ public class EmployeeMapper {
             dto.setUserId(employee.getUser().getUserId());
             dto.setFullName(employee.getUser().getFullName());
             dto.setStatus(employee.getUser().getStatus().toString());
+            dto.setCreatedAt(employee.getUser().getCreatedAt());
         }
         return dto;
     }

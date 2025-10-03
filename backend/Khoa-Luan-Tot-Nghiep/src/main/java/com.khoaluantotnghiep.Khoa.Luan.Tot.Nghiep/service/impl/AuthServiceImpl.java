@@ -1,7 +1,7 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.impl;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.LockUnlockRequest;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.LoginRequest;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.LoginRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.PasswordChangeRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.RefreshToken;

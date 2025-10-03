@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,4 +22,7 @@ public class CandidateDto {
 
     private Long userId;
     private String status;
+    private String email;
+    private String phone;
+    private LocalDateTime createdAt;
 }

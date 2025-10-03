@@ -17,6 +17,7 @@ public class FeedbackMapper {
         FeedbackDto dto = modelMapper.map(feedback, FeedbackDto.class);
         if (feedback.getUser() != null) {
             dto.setUserId(feedback.getUser().getUserId());
+            dto.setEmail(feedback.getUser().getEmail());
         }
         return dto;
     }
