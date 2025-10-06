@@ -68,7 +68,7 @@ public class User {
     private Employee employee;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<UserRole> userRoles;
+    private List<UserRole> userRoles = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
