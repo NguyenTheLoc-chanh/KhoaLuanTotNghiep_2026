@@ -17,7 +17,8 @@ public class CorsConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedOrigins(
                                 "http://localhost:3000",
-                                "https://ddc17aa64cfa.ngrok-free.app"
+                                "https://ddc17aa64cfa.ngrok-free.app",
+                                "https://khoaluantotnghiep-2026.onrender.com"
                         )
                         .allowedHeaders("*");
             }
