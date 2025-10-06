@@ -89,7 +89,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             var refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Lấy roles
-            List<String> roles = user.getUserRoles().stream()
+            List<String> roles = Optional.ofNullable(user.getUserRoles())
+                    .orElse(List.of())
+                    .stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
 
@@ -175,7 +177,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             var refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Lấy roles
-            List<String> roles = user.getUserRoles().stream()
+            List<String> roles = Optional.ofNullable(user.getUserRoles())
+                    .orElse(List.of())
+                    .stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
 
@@ -310,6 +314,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         UserRole userRole = new UserRole();
         userRole.setUser(savedUser);
         userRole.setRole(roleEntity);
+        savedUser.getUserRoles().add(userRole);
         userRoleRepo.save(userRole);
 
         // Tạo Candidate hoặc Employee
