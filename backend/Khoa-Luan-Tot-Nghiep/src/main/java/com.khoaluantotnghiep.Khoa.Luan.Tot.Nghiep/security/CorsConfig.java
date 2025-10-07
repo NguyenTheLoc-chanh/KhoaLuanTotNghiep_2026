@@ -18,7 +18,7 @@ public class CorsConfig {
                         .allowedOrigins(
                                 "http://localhost:3000",
                                 "https://ddc17aa64cfa.ngrok-free.app",
-                                "https://khoaluantotnghiep-2026.onrender.com/"
+                                "https://khoaluantotnghiep-2026.onrender.com"
                         )
                         .allowedHeaders("*");
             }
