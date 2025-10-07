@@ -3,6 +3,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.CandidateRegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.RegisterRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.UserDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.UserLoginDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Role;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.UserRole;
@@ -31,17 +32,15 @@ public class UserMapper {
         }
         return dto;
     }
-    public UserDto toLogoutDto(User user) {
+
+    public UserLoginDto toLoginDto(User user) {
         if (user == null) return null;
 
-        UserDto dto = new UserDto();
+        UserLoginDto dto = new UserLoginDto();
         dto.setUserId(user.getUserId());
         dto.setEmail(user.getEmail());
         dto.setFullName(user.getFullName());
         dto.setPhone(user.getPhone());
-        dto.setStatus(user.getStatus() != null ? user.getStatus().name() : null);
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
 
         // Chỉ map roles nếu userRoles không null
         if (user.getUserRoles() != null && !user.getUserRoles().isEmpty()) {

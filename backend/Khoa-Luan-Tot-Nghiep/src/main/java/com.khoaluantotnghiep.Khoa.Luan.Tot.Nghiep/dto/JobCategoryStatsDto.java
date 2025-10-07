@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class JobCategoryStatsDto {
+    private Long jobCategoryId;
     private String categoryName;
     private Long jobCount;
 }

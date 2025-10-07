@@ -32,7 +32,6 @@ public class JobPostingDto {
     private String description;
     private String status;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     private EmployeeDto employee;
     private JobCategoryDto jobCategory;

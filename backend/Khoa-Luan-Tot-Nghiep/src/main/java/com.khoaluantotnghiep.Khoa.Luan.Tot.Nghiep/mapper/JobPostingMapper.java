@@ -3,6 +3,7 @@ package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.AppliedJobDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.JobPostingCardDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,10 @@ public class JobPostingMapper {
 
     public JobPostingDto toDto(JobPosting jobPosting) {
         return modelMapper.map(jobPosting, JobPostingDto.class);
+    }
+
+    public JobPostingCardDto toJobPostingCardDto(JobPosting jobPosting) {
+        return modelMapper.map(jobPosting, JobPostingCardDto.class);
     }
 
     public AppliedJobDto toAppliedJobDto(JobApplication jobApplication) {

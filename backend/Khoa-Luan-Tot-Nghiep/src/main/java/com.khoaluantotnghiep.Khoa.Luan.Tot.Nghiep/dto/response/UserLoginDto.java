@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,12 +14,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true) // (Jackson) → Nếu JSON gửi lên có thêm các field lạ không khai báo trong class, sẽ bỏ qua, tránh lỗi parse.
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserLoginDto {
     private Long userId;
     private String email;
     private String fullName;
     private String phone;
-    private String status;
-    private LocalDateTime createdAt;
     private List<String> roles;
 }

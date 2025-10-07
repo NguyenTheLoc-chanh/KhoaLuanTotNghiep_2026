@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -35,6 +36,12 @@ public class User {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "lock_until", columnDefinition = "DATETIME")
+    private LocalDateTime lockUntil;
 
     @Enumerated(EnumType.STRING)   // lưu enum dưới dạng text ("ACTIVE", "LOCKED")
     @Column(nullable = false)
@@ -68,7 +75,8 @@ public class User {
     private Employee employee;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<UserRole> userRoles;
+    @Builder.Default
+    private List<UserRole> userRoles = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

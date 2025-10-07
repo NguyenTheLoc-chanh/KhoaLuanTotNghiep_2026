@@ -4,6 +4,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployeeInfoCompanyRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.EmployeeCardListDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.Employee;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
@@ -160,15 +161,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         } else {
             employeePage = employeeRepo.findAll(pageable);
         }
-        List<EmployeeDto> employeeDtos = employeePage.getContent()
+        List<EmployeeCardListDto> employeeDtos = employeePage.getContent()
                 .stream()
-                .map(employeeMapper::toDto)
+                .map(employeeMapper::toEmployeeCardListDto)
                 .toList();
 
         return Response.builder()
                 .status(200)
-                .message("Employees retrieved successfully")
-                .employerDtoList(employeeDtos)
+                .message("Lây danh sách nhà tuyển dụng thành công!")
+                .employerCardList(employeeDtos)
                 .currentPage(employeePage.getNumber())
                 .totalItems(employeePage.getTotalElements())
                 .totalPages(employeePage.getTotalPages())
@@ -178,14 +179,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Response deleteEmployee(Long userId) {
         Employee employee = employeeRepo.findByUser_UserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with userId: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy nhà tuyển dụng!"));
         if(employee == null){
             throw new ResourceNotFoundException("Không tìm thấy nhà tuyển dụng!");
         }
         employeeRepo.delete(employee);
         return Response.builder()
                 .status(200)
-                .message("Employee deleted successfully")
+                .message("Xóa nhà tuyển dụng thành công!")
                 .build();
     }
 

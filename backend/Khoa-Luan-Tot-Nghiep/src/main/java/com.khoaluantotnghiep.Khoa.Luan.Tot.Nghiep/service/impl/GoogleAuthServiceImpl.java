@@ -89,9 +89,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             var refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Lấy roles
-            List<String> roles = user.getUserRoles().stream()
+            List<String> roles = Optional.ofNullable(user.getUserRoles())
+                    .orElse(List.of())
+                    .stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
+
 
             log.info("Đăng nhập Google thành công cho user: {} - Role: {}", 
                 user.getEmail(), roles);
@@ -175,9 +178,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             var refreshToken = refreshTokenService.createRefreshToken(user);
 
             // Lấy roles
-            List<String> roles = user.getUserRoles().stream()
+            List<String> roles = Optional.ofNullable(user.getUserRoles())
+                    .orElse(List.of())
+                    .stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
+
 
             return Response.builder()
                     .status(200)
@@ -310,6 +316,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         UserRole userRole = new UserRole();
         userRole.setUser(savedUser);
         userRole.setRole(roleEntity);
+
+        savedUser.getUserRoles().add(userRole);
+
         userRoleRepo.save(userRole);
 
         // Tạo Candidate hoặc Employee
