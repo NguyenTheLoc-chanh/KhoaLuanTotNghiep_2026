@@ -316,7 +316,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         UserRole userRole = new UserRole();
         userRole.setUser(savedUser);
         userRole.setRole(roleEntity);
+
         savedUser.getUserRoles().add(userRole);
+
         userRoleRepo.save(userRole);
 
         // Tạo Candidate hoặc Employee
