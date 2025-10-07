@@ -11,7 +11,7 @@ public interface JobPostingService {
     Response deleteJobPosting(Long id);
     Response searchJobPostings(String keyword, int page, int size, String location);
     Response fileterJobPostingsTheBetter(String location, int page, int size);
-    Response filterJobPostings(String location, String jobType, int page, int size);
+    Response filterJobPostings(String title, String companyName, String jobField, String location, int page, int size);
     Response getJobPostingsByCompany(Long employeeId, int page, int size);
     Response approveJobPosting(Long id);
     Response lockJobPosting(Long id);
@@ -19,4 +19,5 @@ public interface JobPostingService {
     Response getJobPostingByShareToken(String token);
     Response getJobPostingsByAddress(String address, int page, int size);
     Response getCandidatesForJobPosting(Long jobId, int page, int size, String sortDir, String status);
+    Response filterJobPostings(String title, String companyName, String address, Double minSalary, Double maxSalary, int page, int size);
 }

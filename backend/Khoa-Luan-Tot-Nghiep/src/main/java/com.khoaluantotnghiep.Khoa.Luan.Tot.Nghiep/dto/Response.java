@@ -1,6 +1,9 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.EmployeeCardListDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.JobPostingCardDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.UserLoginDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -35,14 +38,20 @@ public class Response {
     private UserDto userDto;
     private List<UserDto> userDtoList;
 
+    private UserLoginDto userLoginDto;
+
     private CandidateDto candidateDto;
     private List<CandidateDto> candidateDtoList;
 
     private EmployeeDto employerDto;
     private List<EmployeeDto> employerDtoList;
 
+    private List<EmployeeCardListDto> employerCardList;
+
     private JobPostingDto jobPostingDto;
     private List<JobPostingDto> jobPostingDtoList;
+
+    private List<JobPostingCardDto> jobPostingCardDtoList;
 
     private AppliedJobDto appliedJobDto;
     private List<AppliedJobDto> appliedJobDtoList;

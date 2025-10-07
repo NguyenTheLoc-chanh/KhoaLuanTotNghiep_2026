@@ -311,4 +311,18 @@ public class AuthController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @Operation(summary = "Gửi mã mở khóa tài khoản qua email")
+    @PostMapping("/send-unlock-code")
+    public ResponseEntity<Response> sendUnlockCode(@RequestParam String email) {
+        return ResponseEntity.ok(authService.sendUnlockAccountCode(email));
+    }
+
+    @Operation(summary = "Xác minh mã mở khóa tài khoản")
+    @PostMapping("/verify-unlock-code")
+    public ResponseEntity<Response> verifyUnlockCode(@RequestParam String email,
+                                                     @RequestParam String code) {
+        return ResponseEntity.ok(authService.verifyUnlockAccountCode(email, code));
+    }
+
+
 }

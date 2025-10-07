@@ -204,7 +204,6 @@ public class JobCategoryController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/stats")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> getJobCategoryStats() {
         Response response = jobCategoryService.getJobCategoryStats();
         return ResponseEntity.status(response.getStatus()).body(response);
@@ -242,7 +241,6 @@ public class JobCategoryController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @GetMapping("/{jobCategoryId}/jobs")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Response> getJobPostingsByCategory(
             @PathVariable Long jobCategoryId,
             @RequestParam(defaultValue = "0") @Min(0) int page,

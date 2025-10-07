@@ -14,4 +14,6 @@ public interface AuthService {
     Response forgotPassword(String email);
     Response resetPassword(String token, String newPassword, String confirmPassword);
     Response lockUnlockUser(LockUnlockRequest request);
+    Response sendUnlockAccountCode(String email);
+    Response verifyUnlockAccountCode(String email, String code);
 }

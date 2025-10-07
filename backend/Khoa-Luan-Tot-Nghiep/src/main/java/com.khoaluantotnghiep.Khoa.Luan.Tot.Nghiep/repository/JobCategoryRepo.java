@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface JobCategoryRepo extends JpaRepository<JobCategory,Long> {
-    @Query("SELECT new com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobCategoryStatsDto(c.name, COUNT(j)) " +
+    @Query("SELECT new com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobCategoryStatsDto(c.jobCategoryId,c.name, COUNT(j)) " +
             "FROM JobCategory c " +
             "LEFT JOIN c.jobPostings j ON j.status = com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.enums.JobPostingStatus.ACTIVE " +
             "GROUP BY c.name " +

@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUserWithRole(RegisterRequest request, RoleUser roleEnum) {
         if (userRepo.findByEmail(request.getEmail()).isPresent()) {
-            throw new ConflictException("Email already registered");
+            throw new ConflictException("Email đã được sử dụng");
         }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new ConflictException("Mật khẩu và xác nhận mật khẩu không trùng khớp");
@@ -58,13 +58,12 @@ public class UserServiceImpl implements UserService {
         userRoleRepo.save(userRole);
 
         return userRepo.findById(savedUser.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found after save"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
     }
 
     @Override
     @Transactional
     public Response registerCandidate(CandidateRegisterRequest registrationCandidateRequest) {
-        log.info("Registering candidate: {}", registrationCandidateRequest);
         User savedUser = saveUserWithRole(registrationCandidateRequest, RoleUser.CANDIDATE);
         // Nếu là ứng viên
         if (RoleUser.CANDIDATE.name().equalsIgnoreCase(registrationCandidateRequest.getRole())) {
@@ -125,11 +124,11 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toDto)
                 .toList();
         if (userDtos.isEmpty()) {
-            throw new ResourceNotFoundException("No users found");
+            throw new ResourceNotFoundException("Không có người dùng nào");
         }
         return Response.builder()
                 .status(200)
-                .message("Get all users successfully")
+                .message("Lấy danh sách người dùng thành công")
                 .userDtoList(userDtos)
                 .currentPage(usersPage.getNumber())
                 .totalItems(usersPage.getTotalElements())
@@ -144,7 +143,7 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = userMapper.toDto(user);
         return Response.builder()
                 .status(200)
-                .message("Get user by ID successfully")
+                .message("Lấy thông tin người dùng thành công")
                 .userDto(userDto)
                 .build();
     }

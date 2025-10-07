@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -36,6 +37,12 @@ public class User {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "lock_until", columnDefinition = "DATETIME")
+    private LocalDateTime lockUntil;
 
     @Enumerated(EnumType.STRING)   // lưu enum dưới dạng text ("ACTIVE", "LOCKED")
     @Column(nullable = false)

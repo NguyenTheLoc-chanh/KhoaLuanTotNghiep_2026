@@ -131,4 +131,62 @@ public class EmailService {
             throw new RuntimeException("Gửi email phản hồi thất bại", e);
         }
     }
+    public void sendAccountUnlockCodeEmail(String to, String fullName, String code) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Mã mở khóa tài khoản của bạn");
+
+            String html = """
+            <html>
+            <body>
+                <h3>Xin chào %s,</h3>
+                <p>Bạn đã yêu cầu mở khóa tài khoản trên hệ thống tuyển dụng.</p>
+                <p>Mã xác minh mở khóa của bạn là:</p>
+                <h2 style="color: #2d89ef;">%s</h2>
+                <p>Mã này có hiệu lực trong 5 phút.</p>
+                <p>Nếu bạn không yêu cầu mở khóa, vui lòng bỏ qua email này.</p>
+                <br>
+                <p>Trân trọng,<br>Hệ thống Tuyển dụng Trang - Dũng - Lộc with Love</p>
+            </body>
+            </html>
+        """.formatted(fullName, code);
+
+            helper.setText(html, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Không thể gửi email mã mở khóa", e);
+        }
+    }
+    public void sendAccountLockEmail(String to) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Tài khoản của bạn tạm thời bị khóa");
+
+            String html = """
+                <html>
+                <body>
+                    <h3>Tài khoản của bạn đã bị khóa tạm thời</h3>
+                    <p>Do nhập sai mật khẩu quá nhiều lần, tài khoản của bạn đã bị khóa trong 10 phút để bảo vệ an toàn.</p>
+                    <p>Nếu không phải bạn, vui lòng kiểm tra lại email hoặc liên hệ hỗ trợ.</p>
+                    <p>Cảm ơn bạn đã sử dụng hệ thống.</p>
+                    <p>Trân trọng,<br>Hệ thống Tuyển dụng Trang - Dũng - Lộc with Love</p>
+                </body>
+                </html>
+                """;
+
+            helper.setText(html, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Không thể gửi email khóa tài khoản", e);
+        }
+    }
+
 }

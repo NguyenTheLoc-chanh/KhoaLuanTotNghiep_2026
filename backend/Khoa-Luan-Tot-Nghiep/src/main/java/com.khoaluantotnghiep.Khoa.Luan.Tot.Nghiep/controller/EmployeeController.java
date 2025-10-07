@@ -87,7 +87,6 @@ public class EmployeeController {
 
     @Operation(summary = "Lấy danh sách Employer (phân trang + search)", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    @PreAuthorize("hasAnyRole('CANDIDATE','EMPLOYER','ADMIN')")
     public ResponseEntity<Response> getAllEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

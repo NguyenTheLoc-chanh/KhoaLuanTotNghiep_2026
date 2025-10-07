@@ -49,6 +49,20 @@ public final class JobPostingSpecification {
             return cb.lessThanOrEqualTo(root.get("salaryMax"), max);
         };
     }
+    public static Specification<JobPosting> hasJobCategoryName(String jobCategoryName) {
+        return (root, query, cb) -> {
+            if (jobCategoryName == null || jobCategoryName.isBlank()) {
+                return null;
+            }
+
+            // JOIN tới bảng JobCategory
+            return cb.like(
+                    cb.lower(root.join("jobCategory").get("name")),
+                    "%" + jobCategoryName.toLowerCase() + "%"
+            );
+        };
+    }
+
 
     public static Specification<JobPosting> isActive() {
         return (root, query, cb) -> cb.equal(root.get("status"), JobPostingStatus.ACTIVE);

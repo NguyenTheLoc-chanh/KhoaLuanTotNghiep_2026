@@ -95,6 +95,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
 
+
             log.info("Đăng nhập Google thành công cho user: {} - Role: {}", 
                 user.getEmail(), roles);
 
@@ -182,6 +183,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     .stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
+
 
             return Response.builder()
                     .status(200)
@@ -314,7 +316,13 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         UserRole userRole = new UserRole();
         userRole.setUser(savedUser);
         userRole.setRole(roleEntity);
+<<<<<<< HEAD
+
         savedUser.getUserRoles().add(userRole);
+
+=======
+        savedUser.getUserRoles().add(userRole);
+>>>>>>> origin/main
         userRoleRepo.save(userRole);
 
         // Tạo Candidate hoặc Employee

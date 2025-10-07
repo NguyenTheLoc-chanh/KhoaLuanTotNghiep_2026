@@ -18,7 +18,6 @@ public class JobCategoryDto {
     private String name;
     private String description;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     private Long userId; // ID của người quản trị tạo/sửa
 }
