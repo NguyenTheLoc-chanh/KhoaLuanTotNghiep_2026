@@ -342,7 +342,7 @@ public class JobPostingController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PostMapping("/{jobId}/share")
-    @PreAuthorize("hasRole('EMPLOYER')")
+    @PreAuthorize("hasAnyRole('CANDIDATE','EMPLOYER')")
     public ResponseEntity<Response> shareJobPosting(
             @PathVariable Long jobId
     ) {
