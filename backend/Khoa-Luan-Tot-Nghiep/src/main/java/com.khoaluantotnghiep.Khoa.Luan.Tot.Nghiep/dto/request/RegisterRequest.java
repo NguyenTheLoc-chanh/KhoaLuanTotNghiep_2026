@@ -25,7 +25,4 @@ public abstract class RegisterRequest {
 
     @NotBlank(message = "Xác nhận mật khẩu không được để trống")
     private String confirmPassword;
-
-    @NotNull(message = "Vai trò không được để trống")
-    private String role;
 }
