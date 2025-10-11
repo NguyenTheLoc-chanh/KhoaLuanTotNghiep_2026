@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.publicapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.ProvinceDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.AddressService;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/address")
+@RequestMapping("/api/public/address")
 @RequiredArgsConstructor
 @Tag(name = "Address", description = "API lấy dữ liệu Tỉnh/Thành phố, Quận/Huyện, Xã/Phường từ open-api.vn")
 public class AddressAPIController {

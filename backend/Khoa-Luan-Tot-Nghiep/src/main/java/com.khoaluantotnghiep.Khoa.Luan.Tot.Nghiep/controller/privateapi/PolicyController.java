@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.PolicyDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/policies")
+@RequestMapping("/api/private/policies")
 @RequiredArgsConstructor
 @Tag(name = "Policy", description = "API quản lý chính sách")
 public class PolicyController {
@@ -49,24 +49,6 @@ public class PolicyController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> createPolicy(@Valid @RequestBody PolicyDto policyDto) {
         Response response = policyService.createPolicy(policyDto);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    @Operation(
-            summary = "Lấy danh sách chính sách (có phân trang)",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công"),
-                    @ApiResponse(responseCode = "404", description = "Không có chính sách nào")
-            },
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Response> getAllPolicies(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Response response = policyService.getAllPolicies(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

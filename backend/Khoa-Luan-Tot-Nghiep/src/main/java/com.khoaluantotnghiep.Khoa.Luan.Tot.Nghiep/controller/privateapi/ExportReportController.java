@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/export-report")
+@RequestMapping("/api/private/export-report")
 @RequiredArgsConstructor
 @Tag(name = "Download Excel", description = "API quản lý xuất file excel")
 public class ExportReportController {

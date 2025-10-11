@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.StatisticsService;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/statistics")
+@RequestMapping("/api/private/statistics")
 @RequiredArgsConstructor
 @Tag(name = "Statistics - ADMIN", description = "API thống kê cho hệ thống tuyển dụng")
 public class StatisticsController {

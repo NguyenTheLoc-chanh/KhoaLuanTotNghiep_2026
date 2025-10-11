@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.EmployeeDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.EmployeeInfoCompanyRequest;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/employees")
+@RequestMapping("/api/private/employees")
 @RequiredArgsConstructor
 @Tag(name = "Employee Management", description = "API quản lý nhà tuyển dụng (Employer)")
 public class EmployeeController {
@@ -85,17 +85,6 @@ public class EmployeeController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @Operation(summary = "Lấy danh sách Employer (phân trang + search)", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
-    public ResponseEntity<Response> getAllEmployees(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "employeeId") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir,
-            @RequestParam(required = false) String search) {
-        Response response = employeeService.getAllEmployees(page, size, sortBy, sortDir, search);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
 
     @Operation(summary = "Xóa Employer theo userId", security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/{userId}")

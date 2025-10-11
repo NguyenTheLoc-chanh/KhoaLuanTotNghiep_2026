@@ -52,7 +52,7 @@ public class CandidateServiceImpl implements CandidateService {
 
         return Response.builder()
                 .status(201)
-                .message("Candidate created successfully")
+                .message("Tạo hồ sơ ứng viên thành công!")
                 .candidateDto(savedDto)
                 .build();
     }
@@ -64,7 +64,7 @@ public class CandidateServiceImpl implements CandidateService {
         CandidateDto candidateDto = candidateMapper.toDto(candidate);
         return Response.builder()
                 .status(200)
-                .message("Candidate retrieved successfully")
+                .message("Lây thông tin ứng viên thành công")
                 .candidateDto(candidateDto)
                 .build();
     }
@@ -85,7 +85,7 @@ public class CandidateServiceImpl implements CandidateService {
 
         return Response.builder()
                 .status(200)
-                .message("Candidate info updated successfully")
+                .message("Câp nhật thông tin ứng viên thành công")
                 .candidateDto(updatedDto)
                 .build();
     }
@@ -105,7 +105,7 @@ public class CandidateServiceImpl implements CandidateService {
 
         return Response.builder()
                 .status(200)
-                .message("Candidate avatar updated successfully")
+                .message("Cập nhật ảnh đại diện thành công")
                 .candidateDto(updatedDto)
                 .build();
     }
@@ -122,7 +122,7 @@ public class CandidateServiceImpl implements CandidateService {
         CandidateDto updatedDto = candidateMapper.toDto(updatedCandidate);
         return Response.builder()
                 .status(200)
-                .message("Candidate CV updated successfully")
+                .message("Cập nhật file CV thành công")
                 .candidateDto(updatedDto)
                 .build();
     }
@@ -134,13 +134,13 @@ public class CandidateServiceImpl implements CandidateService {
         if (candidate == null) {
             return Response.builder()
                     .status(404)
-                    .message("Candidate not found")
+                    .message("Ứng viên không tồn tại")
                     .build();
         }
         candidateRepo.delete(candidate);
         return Response.builder()
                 .status(200)
-                .message("Candidate deleted successfully")
+                .message("Xóa hồ sơ ứng viên thành công")
                 .build();
     }
 
@@ -162,7 +162,7 @@ public class CandidateServiceImpl implements CandidateService {
                 .toList();
         return Response.builder()
                 .status(200)
-                .message("Candidates retrieved successfully")
+                .message("Lấy danh sách ứng viên thành công")
                 .candidateDtoList(candidateDtos)
                 .currentPage(candidatePage.getNumber())
                 .totalItems(candidatePage.getTotalElements())
@@ -178,7 +178,7 @@ public class CandidateServiceImpl implements CandidateService {
         if (candidate == null) {
             return Response.builder()
                     .status(404)
-                    .message("Candidate not found")
+                    .message("Ứng viên không tồn tại")
                     .build();
         }
         JobPosting jobPosting = jobPostingRepo.findById(applyRequest.getJobId())
@@ -186,18 +186,18 @@ public class CandidateServiceImpl implements CandidateService {
         if (jobPosting == null) {
             return Response.builder()
                     .status(404)
-                    .message("Job posting not found")
+                    .message("Bài đăng tuyển dụng không tồn tại")
                     .build();
         }
         jobApplicationRepo.findByCandidate_CandidateIdAndJobPosting_JobId(candidateId, applyRequest.getJobId())
                 .ifPresent(a -> {
-                    throw new IllegalStateException("You have already applied for this job");
+                    throw new IllegalStateException("Bạn đã ứng tuyển vào công việc này rồi");
                 });
         if (applyRequest.getFCvFile() == null || applyRequest.getFCvFile().isEmpty()) {
-            throw new IllegalArgumentException("CV file is required");
+            throw new IllegalArgumentException("CV không được để trống");
         }
         if (applyRequest.getFullName() == null || applyRequest.getEmail() == null || applyRequest.getPhone() == null) {
-            throw new IllegalArgumentException("Missing required information");
+            throw new IllegalArgumentException("Họ tên, email, số điện thoại không được để trống");
         }
         JobApplication application = new JobApplication();
         application.setCandidate(candidate);
@@ -213,7 +213,7 @@ public class CandidateServiceImpl implements CandidateService {
         JobApplicationDto applicationDto = jobApplicationMapper.toDto(savedApplication);
         return Response.builder()
                 .status(201)
-                .message("Job application submitted successfully")
+                .message("Ứng tuyển thành công")
                 .jobApplicationDto(applicationDto)
                 .build();
     }

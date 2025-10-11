@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.security.UserAuth;
@@ -17,7 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/job-applications")
+@RequestMapping("/api/private/job-applications")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Job Application", description = "API quản lý ứng tuyển")
