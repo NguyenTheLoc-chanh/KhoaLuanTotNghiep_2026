@@ -27,10 +27,10 @@ public class Role {
     private String description;
 
     // Role ↔ UserRole (1-n)
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<UserRole> userRoles;
 
     // Role ↔ RolePermission (1-n)
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RolePermission> rolePermissions;
 }

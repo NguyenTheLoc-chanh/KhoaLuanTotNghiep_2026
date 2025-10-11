@@ -34,8 +34,7 @@ public class ExportReportServiceImpl implements ExportReportService {
                 p.getTitle(),
                 p.getEmployee() != null ? p.getEmployee().getCompanyName() : "",
                 p.getAddress(),
-                p.getSalaryMin() != null ? p.getSalaryMin().toString() : "",
-                p.getSalaryMax() != null ? p.getSalaryMax().toString() : "",
+                p.getSalary() != null ? p.getSalary() : "",
                 p.getStatus() != null ? translateJobStatus(p.getStatus()) : "",
                 p.getCreatedAt() != null ? p.getCreatedAt().toString() : ""
         )).toList();

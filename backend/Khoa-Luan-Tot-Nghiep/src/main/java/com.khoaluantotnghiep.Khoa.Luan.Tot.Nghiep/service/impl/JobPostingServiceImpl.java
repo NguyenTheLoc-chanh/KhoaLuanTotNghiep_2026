@@ -23,6 +23,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.EmailService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.service.interf.JobPostingService;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.specification.JobPostingSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +32,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JobPostingServiceImpl implements JobPostingService {
@@ -51,24 +54,21 @@ public class JobPostingServiceImpl implements JobPostingService {
         if (dto.getTitle() == null || dto.getTitle().isBlank()) {
             throw new BadRequestException("Tiều đề công việc không được để trống");
         }
-        if (dto.getEmployee().getEmployeeId() == null) {
-            throw new BadRequestException("Nhà tuyển dụng không được để trống");
-        }
     }
 
     private JobPosting buildJobPosting(JobPostingDto dto, Employee employee, JobCategory jobCategory) {
         JobPosting jobPosting = new JobPosting();
         jobPosting.setTitle(dto.getTitle());
-        jobPosting.setJobField(dto.getJobField());
-        jobPosting.setJobPosition(dto.getJobPosition());
         jobPosting.setAddress(dto.getAddress());
-        jobPosting.setExperienceYear(dto.getExperienceYear());
+        jobPosting.setJobBenefit(dto.getJobBenefit());
+        jobPosting.setJobDescription(dto.getJobDescription());
+        jobPosting.setJob_exp(dto.getJob_exp());
+        jobPosting.setJobRequirement(dto.getJobRequirement());
+        jobPosting.setSalary(dto.getSalary());
+        jobPosting.setDeadline(dto.getDeadline());
+        jobPosting.setType(dto.getType());
+        jobPosting.setWorkingTimes(dto.getWorkingTimes());
         jobPosting.setQuantity(dto.getQuantity());
-        jobPosting.setSalaryMin(dto.getSalaryMin());
-        jobPosting.setSalaryMax(dto.getSalaryMax());
-        jobPosting.setNegotiable(dto.getNegotiable());
-        jobPosting.setEndDate(dto.getEndDate());
-        jobPosting.setDescription(dto.getDescription());
         jobPosting.setStatus(JobPostingStatus.PENDING);
         jobPosting.setEmployee(employee);
         jobPosting.setJobCategory(jobCategory);
@@ -81,8 +81,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     private JobPosting checkAndUpdateExpiration(JobPosting posting) {
-        if (posting.getEndDate() != null
-                && posting.getEndDate().isBefore(LocalDateTime.now())
+        if (posting.getDeadline() != null
+                && posting.getDeadline().isBefore(LocalDate.now())
                 && posting.getStatus() == JobPostingStatus.ACTIVE) {
             posting.setStatus(JobPostingStatus.EXPIRED);
             return jobPostingRepo.save(posting);
@@ -94,11 +94,11 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     public Response createJobPosting(Long userId, JobPostingDto jobPostingDto) {
         validateJobPostingDto(jobPostingDto);
-        Employee employee = employeeRepo.findById(userId)
+        Employee employee = employeeRepo.findByUser_UserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tồn tại nhà tuyển dụng"));
 
         JobCategory jobCategory = jobCategoryRepo.findById(jobPostingDto.getJobCategory().getJobCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục công việc" ));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục công việc"));
 
         JobPosting jobPosting = buildJobPosting(jobPostingDto, employee, jobCategory);
         JobPosting saved = jobPostingRepo.save(jobPosting);
@@ -158,16 +158,18 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         if (jobPostingDto.getTitle() != null && !jobPostingDto.getTitle().isBlank())
             posting.setTitle(jobPostingDto.getTitle());
-        if (jobPostingDto.getJobField() != null) posting.setJobField(jobPostingDto.getJobField());
-        if (jobPostingDto.getJobPosition() != null) posting.setJobPosition(jobPostingDto.getJobPosition());
         if (jobPostingDto.getAddress() != null) posting.setAddress(jobPostingDto.getAddress());
-        if (jobPostingDto.getExperienceYear() != null) posting.setExperienceYear(jobPostingDto.getExperienceYear());
+        if (jobPostingDto.getDeadline() != null) posting.setDeadline(jobPostingDto.getDeadline());
+        if (jobPostingDto.getJobBenefit() != null) posting.setJobBenefit(jobPostingDto.getJobBenefit());
+        if (jobPostingDto.getJobDescription() != null) posting.setJobDescription(jobPostingDto.getJobDescription());
+        if (jobPostingDto.getJob_exp() != null) posting.setJob_exp(jobPostingDto.getJob_exp());
+        if (jobPostingDto.getJobRequirement() != null) posting.setJobRequirement(jobPostingDto.getJobRequirement());
+        if (jobPostingDto.getSalary() != null) posting.setSalary(jobPostingDto.getSalary());
+        if (jobPostingDto.getType() != null) {
+            posting.setType(jobPostingDto.getType());
+        }
+        if (jobPostingDto.getWorkingTimes() != null) posting.setWorkingTimes(jobPostingDto.getWorkingTimes());
         if (jobPostingDto.getQuantity() != null) posting.setQuantity(jobPostingDto.getQuantity());
-        if (jobPostingDto.getSalaryMin() != null) posting.setSalaryMin(jobPostingDto.getSalaryMin());
-        if (jobPostingDto.getSalaryMax() != null) posting.setSalaryMax(jobPostingDto.getSalaryMax());
-        if (jobPostingDto.getNegotiable() != null) posting.setNegotiable(jobPostingDto.getNegotiable());
-        if (jobPostingDto.getEndDate() != null) posting.setEndDate(jobPostingDto.getEndDate());
-        if (jobPostingDto.getDescription() != null) posting.setDescription(jobPostingDto.getDescription());
         if (jobPostingDto.getStatus() != null) {
             try {
                 posting.setStatus(JobPostingStatus.valueOf(jobPostingDto.getStatus().toUpperCase()));
@@ -312,7 +314,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         Page<JobPosting> postings = jobPostingRepo.findByEmployee(employee, pageable);
 
         if (postings.getContent().isEmpty()) {
-            throw new ResourceNotFoundException("Nhà tuyển dụng chưa đăng tin tuyển dụng nào" );
+            throw new ResourceNotFoundException("Nhà tuyển dụng chưa đăng tin tuyển dụng nào");
         }
         List<JobPostingDto> jobPostingDtos = postings.getContent().stream()
                 .map(this::checkAndUpdateExpiration)

@@ -15,23 +15,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface JobPostingRepo extends JpaRepository<JobPosting,Long>, JpaSpecificationExecutor<JobPosting> {
-    // Tìm theo tiêu đề (không phân biệt hoa thường, chứa keyword)
-    Page<JobPosting> findByTitleContainingIgnoreCase(String title, Pageable pageable);
-
     Page<JobPosting> findByEmployeeAndStatus(Employee employee, JobPostingStatus status, Pageable pageable);
 
     Page<JobPosting> findByJobCategory_JobCategoryIdAndStatus(Long jobCategoryId, JobPostingStatus status, Pageable pageable);
 
     Page<JobPosting> findByAddressContainingIgnoreCase(String address, Pageable pageable);
 
-    // Tìm theo địa chỉ và lĩnh vực công việc (cả 2 đều chứa, không phân biệt hoa thường)
-    Page<JobPosting> findByAddressContainingIgnoreCaseAndJobFieldContainingIgnoreCase(String address, String jobField, Pageable pageable);
-
     // Tìm tất cả bài đăng theo nhân viên đã tạo
     Page<JobPosting> findByEmployee(Employee employee, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE JobPosting j SET j.status = 'EXPIRED' WHERE j.endDate < :now AND j.status = 'ACTIVE'")
+    @Query("UPDATE JobPosting j SET j.status = 'EXPIRED' WHERE j.deadline < :now AND j.status = 'ACTIVE'")
     void updateExpiredJobs(@Param("now") LocalDateTime now);
 
     @Query("SELECT j FROM JobPosting j " +

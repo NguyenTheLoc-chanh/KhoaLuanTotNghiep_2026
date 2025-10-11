@@ -38,6 +38,23 @@ public class CloudinaryService {
         return upload(file, "raw");
     }
 
+    // Upload file lớn sử dụng chunking
+    public String uploadLargePdf(MultipartFile file) {
+        try {
+            // Sử dụng uploadLarge thay vì upload
+            Map uploadResult = cloudinary.uploader().uploadLarge(file.getInputStream(),
+                    ObjectUtils.asMap("resource_type", "raw"));
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            log.error("Upload large PDF error: {}", e.getMessage());
+            throw new RuntimeException("Unable to upload large PDF: " + e.getMessage());
+        } catch (Exception e) {
+            // uploadLarge có thể ném ra Exception chung
+            log.error("Upload large PDF failed unexpectedly: {}", e.getMessage());
+            throw new RuntimeException("Upload large PDF failed: " + e.getMessage());
+        }
+    }
+
     private String upload(MultipartFile file, String resourceType) {
         try {
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
