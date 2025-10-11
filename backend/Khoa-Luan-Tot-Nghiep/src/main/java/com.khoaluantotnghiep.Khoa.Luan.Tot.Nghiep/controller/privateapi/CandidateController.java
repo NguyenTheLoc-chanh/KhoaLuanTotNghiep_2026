@@ -1,6 +1,5 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.CandidateDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.request.JobApplicationRequest;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.Response;
@@ -22,13 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/candidates")
+@RequestMapping("/api/private/candidates")
 @RequiredArgsConstructor
 @Tag(name = "Candidate", description = "API quản lý hồ sơ ứng viên")
 public class CandidateController {
 
     private final CandidateService candidateService;
-    private final ObjectMapper objectMapper;
 
     // ===== CREATE =====
     @Operation(

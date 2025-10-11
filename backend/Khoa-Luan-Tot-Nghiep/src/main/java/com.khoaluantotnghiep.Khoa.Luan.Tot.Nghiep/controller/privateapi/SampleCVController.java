@@ -1,4 +1,4 @@
-package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller;
+package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.controller.privateapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/sample-cvs")
+@RequestMapping("/api/private/sample-cvs")
 @RequiredArgsConstructor
 @Tag(name = "SampleCV", description = "API quản lý mẫu CV")
 public class SampleCVController {
@@ -70,38 +69,6 @@ public class SampleCVController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-
-    // ===== GET ALL (PAGINATION) =====
-    @Operation(
-            summary = "Lấy danh sách SampleCV (có phân trang, tìm kiếm, sắp xếp)",
-            description = "Query params: page, size, sortBy, sortDir, search",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Thành công")
-            },
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYER','CANDIDATE')")
-    public ResponseEntity<Response> getAllSampleCVs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "sampleCVId") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir,
-            @RequestParam(required = false) String search
-    ) {
-        Response response = sampleCVService.getAllSampleCVs(page, size, sortBy, sortDir, search);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    // ===== GET BY ID =====
-    @Operation(summary = "Lấy thông tin SampleCV theo ID")
-    @GetMapping("/{sampleCVId}")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYER','CANDIDATE')")
-    public ResponseEntity<Response> getSampleCVById(@PathVariable Long sampleCVId) {
-        Response response = sampleCVService.getSampleCVById(sampleCVId);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
     // ===== UPDATE =====
     @Operation(summary = "Cập nhật SampleCV")
     @PutMapping(value = "/{sampleCVId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -125,12 +92,5 @@ public class SampleCVController {
     public ResponseEntity<Response> deleteSampleCV(@PathVariable Long sampleCVId) {
         Response response = sampleCVService.deleteSampleCV(sampleCVId);
         return ResponseEntity.status(response.getStatus()).body(response);
-    }
-    // ===== DOWNLOAD FILE =====
-    @Operation(summary = "Tải trực tiếp file mẫu CV theo ID")
-    @GetMapping("/{sampleCVId}/download")
-    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYER','CANDIDATE')")
-    public ResponseEntity<Resource> downloadSampleCVFile(@PathVariable Long sampleCVId) {
-        return sampleCVService.downloadSampleCVFile(sampleCVId);
     }
 }

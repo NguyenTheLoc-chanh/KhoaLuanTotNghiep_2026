@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface JobPostingRepo extends JpaRepository<JobPosting,Long>, JpaSpeci
 
     @Modifying
     @Query("UPDATE JobPosting j SET j.status = 'EXPIRED' WHERE j.deadline < :now AND j.status = 'ACTIVE'")
-    void updateExpiredJobs(@Param("now") LocalDateTime now);
+    void updateExpiredJobs(@Param("now") LocalDate now);
 
     @Query("SELECT j FROM JobPosting j " +
             "JOIN j.employee e " +

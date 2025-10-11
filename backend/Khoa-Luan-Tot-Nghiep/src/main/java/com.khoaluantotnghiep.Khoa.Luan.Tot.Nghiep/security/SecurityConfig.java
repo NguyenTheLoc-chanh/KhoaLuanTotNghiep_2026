@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/public/**",
                                 "/api/address/**",
                                 "/api/users/register/**",
                                 "/api/job-categories/stats",

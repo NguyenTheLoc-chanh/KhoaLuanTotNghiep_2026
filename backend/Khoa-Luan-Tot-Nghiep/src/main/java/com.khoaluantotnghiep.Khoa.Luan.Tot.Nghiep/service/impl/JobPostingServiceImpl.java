@@ -33,8 +33,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -77,7 +77,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void autoUpdateExpiredJobPostings() {
-        jobPostingRepo.updateExpiredJobs(LocalDateTime.now());
+        jobPostingRepo.updateExpiredJobs(LocalDate.now());
     }
 
     private JobPosting checkAndUpdateExpiration(JobPosting posting) {
@@ -277,35 +277,6 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public Response filterJobPostings(String title, String companyName, String jobField, String location, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Specification<JobPosting> spec = Specification.allOf(
-                JobPostingSpecification.isActive(),
-                JobPostingSpecification.hasTitle(title),
-                JobPostingSpecification.hasJobCategoryName(jobField),
-                JobPostingSpecification.hasCompanyName(companyName),
-                JobPostingSpecification.hasAddress(location)
-        );
-        Page<JobPosting> postings = jobPostingRepo.findAll(spec, pageable);
-
-        if (postings.getContent().isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy công việc phù hợp với bộ lọc!");
-        }
-        List<JobPostingCardDto> jobPostingDtos = postings.getContent().stream()
-                .map(jobPostingMapper::toJobPostingCardDto)
-                .toList();
-
-        return Response.builder()
-                .status(200)
-                .message("Lọc công việc thành công!")
-                .jobPostingCardDtoList(jobPostingDtos)
-                .currentPage(postings.getNumber())
-                .totalItems(postings.getTotalElements())
-                .totalPages(postings.getTotalPages())
-                .build();
-    }
-
-    @Override
     public Response getJobPostingsByCompany(Long employeeId, int page, int size) {
         Employee employee = employeeRepo.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy nhà tuyển dụng"));
@@ -483,25 +454,32 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public Response filterJobPostings(String title, String companyName, String address, Double minSalary, Double maxSalary, int page, int size) {
+    public Response filterJobPostings(String title, String companyName, String address, String salaryRange, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Specification<JobPosting> spec = Specification.allOf(
                 JobPostingSpecification.isActive(),
                 JobPostingSpecification.hasTitle(title),
                 JobPostingSpecification.hasCompanyName(companyName),
-                JobPostingSpecification.hasAddress(address),
-                JobPostingSpecification.salaryBetween(minSalary, maxSalary)
+                JobPostingSpecification.hasAddress(address)
         );
 
         Page<JobPosting> postings = jobPostingRepo.findAll(spec, pageable);
 
-        if (postings.isEmpty()) {
+        List<JobPosting> filtered;
+        if (salaryRange != null && !salaryRange.isBlank()) {
+            filtered = postings.getContent().stream()
+                    .filter(job -> filterBySalaryRange(job.getSalary(), salaryRange))
+                    .toList();
+        } else {
+            filtered = postings.getContent();
+        }
+
+        if (filtered.isEmpty()) {
             throw new ResourceNotFoundException("Không tìm thấy công việc phù hợp theo tiêu chí tìm kiếm");
         }
 
-        List<JobPostingCardDto> jobPostingDtos = postings.getContent()
-                .stream()
+        List<JobPostingCardDto> jobPostingDtos = filtered.stream()
                 .map(jobPostingMapper::toJobPostingCardDto)
                 .toList();
 
@@ -514,4 +492,40 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .jobPostingCardDtoList(jobPostingDtos)
                 .build();
     }
+    private boolean filterBySalaryRange(String salaryStr, String filter) {
+        if (salaryStr == null || salaryStr.isBlank()) return false;
+        if (filter == null || filter.isBlank()) return true; // không chọn lọc => lấy tất cả
+
+        salaryStr = salaryStr.toLowerCase();
+
+        // Nếu là thỏa thuận
+        if (filter.equalsIgnoreCase("thoa-thuan")) {
+            return salaryStr.contains("thỏa thuận");
+        }
+
+        double min = extractMin(salaryStr);
+        double max = extractMax(salaryStr);
+
+        return switch (filter) {
+            case "duoi10" -> max <= 10;
+            case "15-20" -> min >= 15 && max <= 20;
+            case "20-25" -> min >= 20 && max <= 25;
+            case "25-30" -> min >= 25 && max <= 30;
+            case "30-50" -> min >= 30 && max <= 50;
+            case "tren50" -> min >= 50;
+            default -> true;
+        };
+    }
+    private static double extractMin(String s) {
+        var matcher = Pattern.compile("(\\d+)").matcher(s);
+        return matcher.find() ? Double.parseDouble(matcher.group(1)) : 0;
+    }
+
+    private static double extractMax(String s) {
+        var matcher = Pattern.compile("(\\d+)").matcher(s);
+        double val = 0;
+        while (matcher.find()) val = Double.parseDouble(matcher.group());
+        return val == 0 ? extractMin(s) : val;
+    }
+
 }
