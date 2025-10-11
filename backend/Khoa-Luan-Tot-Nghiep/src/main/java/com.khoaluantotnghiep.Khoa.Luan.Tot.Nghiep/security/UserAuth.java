@@ -5,6 +5,7 @@ import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.User;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.UserRole;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Data
 @Builder
+@ToString(exclude = "user")
 public class UserAuth implements UserDetails {
 
     private User user;

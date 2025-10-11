@@ -19,8 +19,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .servers(List.of(
                         new Server().url("http://localhost:8080").description("Local Server"),
-                        new Server().url("https://ddc17aa64cfa.ngrok-free.app").description("Ngrok Tunnel"),
-                        new Server().url("https://khoaluantotnghiep-2026.onrender.com").description("Backend Server")
+                        new Server().url("https://ddc17aa64cfa.ngrok-free.app").description("Ngrok Tunnel")
                 ))
                 .info(new Info()
                         .title("Khóa Luận Tốt Nghiệp API")

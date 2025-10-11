@@ -114,6 +114,7 @@ public class UserController {
         Response response = userService.registerEmployer(registerRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
     @Operation(
             summary = "Đăng ký admin (Admin)",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(

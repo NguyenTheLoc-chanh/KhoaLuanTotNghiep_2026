@@ -66,11 +66,9 @@ public class UserServiceImpl implements UserService {
     public Response registerCandidate(CandidateRegisterRequest registrationCandidateRequest) {
         User savedUser = saveUserWithRole(registrationCandidateRequest, RoleUser.CANDIDATE);
         // Nếu là ứng viên
-        if (RoleUser.CANDIDATE.name().equalsIgnoreCase(registrationCandidateRequest.getRole())) {
-            Candidate candidate = new Candidate();
-            candidate.setUser(savedUser);
-            candidateRepo.save(candidate);
-        }
+        Candidate candidate = new Candidate();
+        candidate.setUser(savedUser);
+        candidateRepo.save(candidate);
 
         return Response.builder()
                 .status(201)
@@ -88,7 +86,7 @@ public class UserServiceImpl implements UserService {
         employee.setUser(savedUser);
         if (registrationRequest.getBusinessLicense() != null && !registrationRequest.getBusinessLicense().isEmpty()) {
             // Upload file PDF lên Cloudinary
-            String pdfUrl = cloudinaryService.uploadPdf(registrationRequest.getBusinessLicense());
+            String pdfUrl = cloudinaryService.uploadLargePdf(registrationRequest.getBusinessLicense());
             employee.setBusinessLicense(pdfUrl);
         } else {
             employee.setBusinessLicense(null);

@@ -1,8 +1,6 @@
 package com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.mapper;
 
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.AppliedJobDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobApplicationDto;
-import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.JobPostingDto;
+import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.*;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.dto.response.JobPostingCardDto;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobApplication;
 import com.khoaluantotnghiep.Khoa.Luan.Tot.Nghiep.entity.JobPosting;
@@ -18,7 +16,15 @@ public class JobPostingMapper {
     }
 
     public JobPostingDto toDto(JobPosting jobPosting) {
-        return modelMapper.map(jobPosting, JobPostingDto.class);
+        JobPostingDto dto = modelMapper.map(jobPosting, JobPostingDto.class);
+        if (jobPosting.getEmployee() != null) {
+            dto.setEmployee(modelMapper.map(jobPosting.getEmployee(), EmployeeDto.class));
+        }
+
+        if (jobPosting.getJobCategory() != null) {
+            dto.setJobCategory(modelMapper.map(jobPosting.getJobCategory(), JobCategoryDto.class));
+        }
+        return dto;
     }
 
     public JobPostingCardDto toJobPostingCardDto(JobPosting jobPosting) {
